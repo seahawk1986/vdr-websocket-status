@@ -31,6 +31,7 @@
 </template>
 
 <script lang="ts" setup>
+  import type { VSnackbarQueue } from 'vuetify/components'
   import { onMounted, ref, type Ref } from 'vue'
   import { type InitialData, type OSDMessage, type Position, type ReplayDisplay, Screen, type TimerData, type TimerStatusData, type TVDisplay, useAppStore } from '@/stores/app'
   import WebSocketClient from '@/websocket'
@@ -44,13 +45,13 @@
   const ErrorMessage: Ref<string | null> = ref(null)
 
   export interface SnackbarMessage {
-    text: string;
-    color?: string;
-    timeout?: number;
-    onDismiss?: (reason: string) => void;
+    text: string
+    color?: string
+    timeout?: number
+    onDismiss?: (reason: string) => void
   }
 
-  const snackbarQueue = ref(null)
+  const snackbarQueue = ref<InstanceType<typeof VSnackbarQueue> | null>(null)
   const messages = ref<SnackbarMessage[]>([])
 
   function addMessage (message: string, color: string) {
