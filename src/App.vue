@@ -43,19 +43,20 @@
   const isActive: Ref<boolean | null> = ref(null)
   const ErrorMessage: Ref<string | null> = ref(null)
 
+  export interface SnackbarMessage {
+    text: string;
+    color?: string;
+    timeout?: number;
+    onDismiss?: (reason: string) => void;
+  }
+
   const snackbarQueue = ref(null)
-  const messages = ref<string[]>([])
-  const logs = ref([])
-  let messageCount = 0
+  const messages = ref<SnackbarMessage[]>([])
 
   function addMessage (message: string, color: string) {
-    const id = ++messageCount
     messages.value.push({
       text: message,
       color: color,
-      onDismiss (reason) {
-        logs.value.unshift(`Message #${id}: Closed (${reason})`)
-      },
     })
   }
 
@@ -106,6 +107,7 @@
             switch (data.type) {
               case 'initial_full_state': {
                 {
+                  snackbarQueue.value?.clear()
                   const initialdata = data as InitialData
                   isActive.value = true
                   store.hasLogos = false // TODO: use plugin settings
