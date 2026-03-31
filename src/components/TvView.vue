@@ -38,6 +38,10 @@
     }
   })
 
+  const params = new URLSearchParams(document.location.search)
+  const showEndTime = params.get('show_end_time')
+  console.log ('showEndTime:', showEndTime)
+
 </script>
 
 <template>
@@ -94,7 +98,7 @@
           <v-sheet class="pa-0 bg-transparent">
             <div class="d-flex align-center overflow-hidden">
               <div class="flex-shrink-0 opacity-80 time-width">
-                {{ date.format(currentStartDate, 'fullTime24h') }} - {{ date.format(currentEndDate, 'fullTime24h') }}
+                {{ date.format(currentStartDate, 'fullTime24h') }}<div v-if="showEndTime"> - {{ date.format(currentEndDate, 'fullTime24h') }}</div>
               </div>
               <v-divider class="mx-6" opacity="0.3" thickness="4" vertical />
               <MarqueeText class="flex-grow-1" :content="store.currentEvent?.title">
@@ -116,7 +120,7 @@
           <v-sheet class="pa-0 bg-transparent">
             <div class="d-flex align-center overflow-hidden">
               <div class="flex-shrink-0 opacity-50 time-width">
-                {{ date.format(followingStartDate, 'fullTime24h') }} - {{ date.format(followingEndDate, 'fullTime24h') }}
+                {{ date.format(followingStartDate, 'fullTime24h') }}<div v-if="showEndTime"> - {{ date.format(followingEndDate, 'fullTime24h') }}</div>
               </div>
               <v-divider class="mx-6" opacity="0.3" thickness="4" vertical />
               <MarqueeText class="flex-grow-1" :content="store.nextEvent?.title">
