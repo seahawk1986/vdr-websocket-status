@@ -98,7 +98,7 @@
           <v-sheet class="pa-0 bg-transparent">
             <div class="d-flex align-center overflow-hidden">
               <div class="flex-shrink-0 opacity-80 time-width">
-                {{ date.format(currentStartDate, 'fullTime24h') }}<div v-if="showEndTime"> - {{ date.format(currentEndDate, 'fullTime24h') }}</div>
+                {{ date.format(currentStartDate, 'fullTime24h') }}<template v-if="showEndTime"> - {{ date.format(currentEndDate, 'fullTime24h') }}</template>
               </div>
               <v-divider class="mx-6" opacity="0.3" thickness="4" vertical />
               <MarqueeText class="flex-grow-1" :content="store.currentEvent?.title">
@@ -120,7 +120,7 @@
           <v-sheet class="pa-0 bg-transparent">
             <div class="d-flex align-center overflow-hidden">
               <div class="flex-shrink-0 opacity-50 time-width">
-                {{ date.format(followingStartDate, 'fullTime24h') }}<div v-if="showEndTime"> - {{ date.format(followingEndDate, 'fullTime24h') }}</div>
+                {{ date.format(followingStartDate, 'fullTime24h') }}<template v-if="showEndTime"> - {{ date.format(followingEndDate, 'fullTime24h') }}</template>
               </div>
               <v-divider class="mx-6" opacity="0.3" thickness="4" vertical />
               <MarqueeText class="flex-grow-1" :content="store.nextEvent?.title">
