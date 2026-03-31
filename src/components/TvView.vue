@@ -13,12 +13,29 @@
     }
     return null
   })
+  const currentEndDate = computed(() => {
+    if (store.currentEvent?.duration && store.currentEvent?.start) {
+      const endDate = new Date(store.currentEvent.start * 1000 + store.currentEvent.duration * 1000)
+      return endDate
+    } else {
+      return null
+    }
+  })
   const followingStartDate = computed(() => {
     if (store.nextEvent?.start) {
       const d = new Date(store.nextEvent.start * 1000)
       return d
     }
     return null
+  })
+
+  const followingEndDate = computed(() => {
+    if (store.nextEvent?.duration && store.nextEvent?.start) {
+      const endDate = new Date(store.nextEvent.start * 1000 + store.nextEvent.duration * 1000)
+      return endDate
+    } else {
+      return null
+    }
   })
 
 </script>
@@ -32,15 +49,41 @@
     <div class="content-wrapper">
 
       <!-- Kanal-Info (Nummer & Name) -->
-      <v-card-item class="bg-transparent py-6">
+      <v-card-item class="bg-transparent py-4">
         <template #prepend>
-          <div class="d-flex align-center flex-nowrap">
-            {{ store.currentChannelNumber }}
-            <v-divider class="mx-6" opacity="0.3" thickness="4" vertical />
+          <div class="d-flex align-center flex-nowrap mr-4">
+            <v-img
+              aspect-ratio="16/9"
+              max-height="25vh"
+              :src="`http://${store.baseUrl}${store.channelLogo}`"
+              :width="300"
+            />
+            <!-- {{ store.currentChannelNumber }} -->
+
+            <!-- <v-divider class="mx-6" opacity="0.3" thickness="4" vertical /> -->
           </div>
         </template>
         <v-card-title class="font-weight-bold pa-0 text-uppercase">
-          {{ store.currentChannelName }}
+          <MarqueeText class="flex-grow-1" :content="store.currentChannelName">
+            {{ store.currentChannelName }}
+          </MarqueeText>
+          <v-divider />
+        </v-card-title>
+        <!-- channel properties and status items-->
+        <v-card-title class="hide-sm-and-below">
+          <div class="d-flex align-center justify-space-around">
+
+            <v-icon :color="store.channelIsEncrypted ? 'warning' : 'grey-darken-2'" icon="mdi-key" />
+            <v-icon :color="store.channelAudioTracksCount > 1 ? 'warning' : 'grey-darken-2'" icon="mdi-soundbar" />
+            <v-icon :color="store.channelHasDolby ? 'warning' : 'grey-darken-2'" icon="mdi-dolby" />
+            <v-icon :color="store.channelHasTeletext ? 'warning' : 'grey-darken-2'" icon="mdi-card-text-outline" />
+            <v-icon
+              :class="store.is_recording ? 'recording-pulse' : ''"
+              :color="store.is_recording ? 'red' : 'grey-darken-2'"
+              icon="mdi-record"
+              size="x-large"
+            />
+          </div>
         </v-card-title>
       </v-card-item>
 
@@ -48,10 +91,10 @@
         <div class="d-flex flex-column">
 
           <!-- Aktuelles Event -->
-          <v-sheet class="pa-4 bg-transparent">
+          <v-sheet class="pa-0 bg-transparent">
             <div class="d-flex align-center overflow-hidden">
               <div class="flex-shrink-0 opacity-80 time-width">
-                {{ date.format(currentStartDate, 'fullTime24h') }}
+                {{ date.format(currentStartDate, 'fullTime24h') }} - {{ date.format(currentEndDate, 'fullTime24h') }}
               </div>
               <v-divider class="mx-6" opacity="0.3" thickness="4" vertical />
               <MarqueeText class="flex-grow-1" :content="store.currentEvent?.title">
@@ -71,10 +114,10 @@
           />
 
           <!-- Nächstes Event -->
-          <v-sheet class="pa-4 bg-transparent">
+          <v-sheet class="pa-0 bg-transparent">
             <div class="d-flex align-center overflow-hidden">
               <div class="flex-shrink-0 opacity-50 time-width">
-                {{ date.format(followingStartDate, 'fullTime24h') }}
+                {{ date.format(followingStartDate, 'fullTime24h') }} - {{ date.format(followingEndDate, 'fullTime24h') }}
               </div>
               <v-divider class="mx-6" opacity="0.3" thickness="4" vertical />
               <MarqueeText class="flex-grow-1" :content="store.nextEvent?.title">
@@ -105,7 +148,7 @@
   width: 100%;
   max-width: 1800px; /* Optional: Begrenzung für Ultra-Wide Screens */
   margin: 0 auto;
-  padding: 0 5vw; /* Seitlicher Abstand basierend auf Fensterbreite */
+  padding: 0 0vw; /* Seitlicher Abstand basierend auf Fensterbreite */
 }
 
 /* Divider-Höhe an die (große) Schrift anpassen */
@@ -118,5 +161,16 @@
 .time-width {
   min-width: 6ch;
   text-align: center;
+}
+
+/* Optional: Ein pulsierender Effekt für das "Aufnahme"-Gefühl */
+.recording-pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.1; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
 }
 </style>

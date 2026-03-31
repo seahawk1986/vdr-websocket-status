@@ -23,13 +23,22 @@ export interface Event {
   title: string
 }
 
+export interface ChannelTech {
+  has_dolby: boolean
+  audio_tracks_count: number
+  is_encrypted: boolean
+  has_teletext: boolean
+}
+
 export interface TVDisplay {
   epg?: {
     present?: Event
     following?: Event
   }
+  tech?: ChannelTech
   name: string
   number: number
+  logo: string
   type: string
 }
 
@@ -66,6 +75,10 @@ export enum Screen {
   Replay = 1,
 }
 
+export interface OSDMessage {
+  message: string
+}
+
 export const useAppStore = defineStore('app', () => {
   const defaultPort = 6742
   const hasLogos = ref(false)
@@ -97,6 +110,12 @@ export const useAppStore = defineStore('app', () => {
   const replaySpeed = ref(0)
   const is_recording = ref(false)
 
+  const channelIsEncrypted = ref(false)
+  const channelHasTeletext = ref(false)
+  const channelHasDolby = ref(false)
+  const channelAudioTracksCount = ref(0)
+  const channelLogo = ref('')
+
   const currentEvent: Ref<null | Event> = ref(null)
   const nextEvent: Ref<null | Event> = ref(null)
 
@@ -104,6 +123,11 @@ export const useAppStore = defineStore('app', () => {
     hasLogos,
     IsInitializing,
     baseUrl, ScreenMode,
+    channelIsEncrypted,
+    channelAudioTracksCount,
+    channelHasDolby,
+    channelHasTeletext,
+    channelLogo,
     currentChannelName,
     currentChannelNumber,
     replayName,

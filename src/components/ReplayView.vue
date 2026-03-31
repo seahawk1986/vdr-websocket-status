@@ -30,7 +30,7 @@
 </script>
 
 <template>
-  <v-card class="text-fluid-display elevation-0 d-flex flex-column h-100" variant="flat">
+  <v-card bg-background class="text-fluid-display elevation-0 d-flex flex-column h-100" variant="flat">
     <template #title>
       <!-- Die Kombination aus min-width: 0 und width: 100% ist hier entscheidend -->
       <div class="d-flex w-100" style="min-width: 0;">
