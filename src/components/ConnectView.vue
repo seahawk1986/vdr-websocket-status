@@ -56,27 +56,26 @@
   font-size: clamp(1.2rem, 5vw + 0.5rem, 6rem) !important;
   line-height: 1.3 !important;
 }
-/* Füllt den Bereich innerhalb von v-main komplett aus */
+/* fill v-main completly */
 .h-100 {
   height: 100% !important;
   min-height: 100%;
 }
 
-/* Container, der alle Inhalte umschließt und in der Mitte hält */
+/* Container that wraps ans centers everything */
 .content-wrapper {
   width: 100%;
-  max-width: 1800px; /* Optional: Begrenzung für Ultra-Wide Screens */
+  max-width: 1800px; /*Optional: limit on Ultra-Wide screens*/
   margin: 0 auto;
-  padding: 0 0vw; /* Seitlicher Abstand basierend auf Fensterbreite */
+  padding: 0 0vw; /* no padding */
 }
 
-/* Divider-Höhe an die (große) Schrift anpassen */
+/* adapt divider height to large fonts */
 :deep(.v-divider--vertical) {
   height: 1.5em !important;
   align-self: center;
 }
 
-/* Zeitspalte etwas breiter für das große Layout */
 .time-width {
   min-width: 6ch;
   text-align: center;

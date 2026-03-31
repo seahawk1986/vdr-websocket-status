@@ -32,7 +32,6 @@
 <template>
   <v-card bg-background class="text-fluid-display elevation-0 d-flex flex-column h-100" variant="flat">
     <template #title>
-      <!-- Die Kombination aus min-width: 0 und width: 100% ist hier entscheidend -->
       <div class="d-flex w-100" style="min-width: 0;">
         <v-sheet class="pa-2 bg-transparent flex-grow-1" style="min-width: 0;">
           <MarqueeText :content="store.replayName">
@@ -43,7 +42,7 @@
     </template>
 
     <template #text>
-      <!-- 'flex-grow-1' füllt den Platz, 'overflow-y-auto' erlaubt Scrollen -->
+      <!-- 'flex-grow-1' fills the available space, 'overflow-y-auto' allows scrolling -->
       <div class="description-container overflow-y-auto pa-2">
         <v-progress-linear
           v-model="store.replayProgress"
@@ -63,29 +62,26 @@
 </template>
 
 <style scoped>
-/* Globale Skalierung für Titel und Inhalte */
 .text-fluid-display :deep(*) {
   font-size: clamp(1.2rem, 6vw + 0.5rem, 6rem) !important;
   line-height: 1.3 !important;
 }
 
-/* Speziell für die Beschreibung (etwas kleiner als der Titel) */
 .description-text {
   /* Min: 1.2rem, Skalierung: 3vw, Max: 4rem */
 
   font-size: clamp(1.2rem, 3vw + 0.5rem, 2.5rem) !important;
   opacity: 0.9;
-  white-space: normal; /* Erlaubt Zeilenumbrüche */
+  white-space: normal; /* allows reflow */
 }
 
 /* Container-Begrenzung für vertikales Scrollen */
 .description-container {
-  /* Setze hier eine feste Höhe oder nutze Flexbox-Werte */
   max-height: 60vh;
-  scrollbar-width: thin; /* Für Firefox */
+  scrollbar-width: thin; /* for Firefox */
 }
 
-/* Scrollbar-Styling für Chrome/Edge/Safari */
+/* Scrollbar styling for Chrome/Edge/Safari */
 .description-container::-webkit-scrollbar {
   width: 8px;
 }

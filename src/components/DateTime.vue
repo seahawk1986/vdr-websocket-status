@@ -27,29 +27,25 @@
 </script>
 
 <style scoped>
-  /* Globale Skalierung für Titel und Inhalte */
   .text-fluid-display :deep(*) {
   font-size: clamp(1.0rem, 5vw + 0.5rem, 6rem) !important;
   line-height: 1.3 !important;
   }
 
-  /* Speziell für die Beschreibung (etwas kleiner als der Titel) */
   .description-text {
-  /* Min: 1.2rem, Skalierung: 3vw, Max: 4rem */
 
   font-size: clamp(1.2rem, 3vw + 0.5rem, 2.5rem) !important;
   opacity: 0.9;
-  white-space: normal; /* Erlaubt Zeilenumbrüche */
+  white-space: normal; /* allow line breaks */
   }
 
-  /* Container-Begrenzung für vertikales Scrollen */
+  /* set limits for vertical scrolling */
   .description-container {
-  /* Setze hier eine feste Höhe oder nutze Flexbox-Werte */
   max-height: 60vh;
-  scrollbar-width: thin; /* Für Firefox */
+  scrollbar-width: thin; /* for Firefox */
   }
 
-  /* Scrollbar-Styling für Chrome/Edge/Safari */
+  /* Scrollbar styling for Chrome/Edge/Safari */
   .description-container::-webkit-scrollbar {
   width: 8px;
   }

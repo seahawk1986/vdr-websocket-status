@@ -20,26 +20,9 @@
     </v-main>
     <v-footer app class="pa-0 w-100 bg-transparent">
       <v-sheet class="d-flex justify-center align-center bg-transparent pa-4 flex-grow-1">
-
-        <!-- Das Icon links von der Uhrzeit -->
-
         <date-time />
-        <!-- <div class="recording-indicator">
-          <v-icon
-            class="recording-pulse"
-            color="red"
-            icon="mdi-record"
-          />
-        </div> -->
       </v-sheet>
     </v-footer>
-    <!-- <v-btn
-      class="ma-2"
-      icon="mdi-theme-light-dark"
-      location="bottom right"
-      position="absolute"
-      @click="$vuetify.theme.cycle()"
-    /> -->
   </v-app>
 </template>
 
