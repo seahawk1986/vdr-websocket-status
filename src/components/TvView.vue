@@ -119,7 +119,7 @@
           <!-- following event -->
           <v-sheet class="pa-0 bg-transparent">
             <div class="d-flex align-center overflow-hidden">
-              <div class="flex-shrink-0 opacity-50 time-width">
+              <div class="flex-shrink-0 opacity-80 time-width">
                 {{ date.format(followingStartDate, 'fullTime24h') }}<template v-if="showEndTime"> - {{ date.format(followingEndDate, 'fullTime24h') }}</template>
               </div>
               <v-divider class="mx-6" opacity="0.3" thickness="4" vertical />
