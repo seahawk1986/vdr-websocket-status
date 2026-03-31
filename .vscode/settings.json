@@ -1,0 +1,7 @@
+{
+  "eslint.format.enable": true,
+  "prettier.bracketSameLine": true,
+  "prettier.configPath": ".prettierrc.json",
+  "editor.formatOnSave": true,
+  "eslint.codeActionsOnSave.rules": [],
+}
