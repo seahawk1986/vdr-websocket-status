@@ -33,7 +33,7 @@
 <script lang="ts" setup>
   import type { VSnackbarQueue } from 'vuetify/components'
   import { onMounted, ref, type Ref } from 'vue'
-  import { type InitialData, type OSDMessage, type Position, type ReplayDisplay, Screen, type TimerData, type TimerStatusData, type TVDisplay, useAppStore } from '@/stores/app'
+  import { type InitialData, type OSDMessage, type Position, type ReplayDisplay, Screen, type TimerData, type TimerStatusData, type TVDisplay, useAppStore, type VolumeData } from '@/stores/app'
   import WebSocketClient from '@/websocket'
   import ConnectView from './components/ConnectView.vue'
   import DateTime from './components/DateTime.vue'
@@ -162,6 +162,10 @@
                   messages.value = []
                   snackbarQueue.value?.clear()
                 }
+              }
+              case 'volume': {
+                const volumedata = data as VolumeData
+                store.volume = volumedata.volume
               }
               // this.$emit(data.value.event, data.value.object)
             }

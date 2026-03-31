@@ -85,6 +85,11 @@ export interface TimerStatusData {
   n_timer: number
 }
 
+export interface VolumeData {
+  type: string
+  volume: number
+}
+
 export enum Screen {
   NotConnected = -1,
   TV = 0,
@@ -121,7 +126,7 @@ export const useAppStore = defineStore('app', () => {
     return 100 * (replayPosition.value / replayPositionTotal.value)
   })
   const replayPositionTotal = ref(0)
-  const volume = ref(0)
+  const volume = ref<number>(0)
   const replaying = ref(false)
   const replayDirectionForward = ref(true)
   const replaySpeed = ref(0)

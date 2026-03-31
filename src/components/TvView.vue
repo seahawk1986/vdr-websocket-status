@@ -77,6 +77,7 @@
         <v-card-title class="hide-sm-and-below">
           <div class="d-flex align-center justify-space-around">
 
+            <v-icon :color="store.volume == 0 ? 'red' : 'grey-darken-2'" :icon="store.volume == 0 ? 'mdi-volume-off' : store.volume >= 100 ? 'mdi-volume-high' : 'mdi-volume-medium'" />
             <v-icon :color="store.channelIsEncrypted ? 'warning' : 'grey-darken-2'" icon="mdi-key" />
             <v-icon :color="store.channelAudioTracksCount > 1 ? 'warning' : 'grey-darken-2'" icon="mdi-soundbar" />
             <v-icon :color="store.channelHasDolby ? 'warning' : 'grey-darken-2'" icon="mdi-dolby" />
