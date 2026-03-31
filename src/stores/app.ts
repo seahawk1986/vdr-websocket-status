@@ -69,6 +69,22 @@ export interface InitialData {
   type: string
 }
 
+export interface TimerData {
+  type: string
+  timer_name: string
+  timer_id: number
+  timer_change: boolean
+  timer_channel_id: string
+  timer_channel_name: string
+}
+
+export interface TimerStatusData {
+  type: string
+  is_recording: boolean
+  active_recordings: number
+  n_timer: number
+}
+
 export enum Screen {
   NotConnected = -1,
   TV = 0,
@@ -77,6 +93,7 @@ export enum Screen {
 
 export interface OSDMessage {
   message: string
+  priority: number
 }
 
 export const useAppStore = defineStore('app', () => {

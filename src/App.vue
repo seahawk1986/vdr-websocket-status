@@ -3,9 +3,13 @@
     <v-main>
       <ConnectView />
       <v-snackbar-queue
+        ref="snackbarQueue"
         v-model="messages"
+        display-strategy="overflow"
         location="top"
         max-width="95vw"
+        :timeout="-1"
+        :total-visible="1"
       >
         <template #text="{ item }">
           <div
@@ -28,7 +32,7 @@
 
 <script lang="ts" setup>
   import { onMounted, ref, type Ref } from 'vue'
-  import { type InitialData, type OSDMessage, type Position, type ReplayDisplay, Screen, type TVDisplay, useAppStore } from '@/stores/app'
+  import { type InitialData, type OSDMessage, type Position, type ReplayDisplay, Screen, type TimerData, type TimerStatusData, type TVDisplay, useAppStore } from '@/stores/app'
   import WebSocketClient from '@/websocket'
   import ConnectView from './components/ConnectView.vue'
   import DateTime from './components/DateTime.vue'
@@ -39,7 +43,7 @@
   const isActive: Ref<boolean | null> = ref(null)
   const ErrorMessage: Ref<string | null> = ref(null)
 
-  const snackbarQueue = ref()
+  const snackbarQueue = ref(null)
   const messages = ref<string[]>([])
   const logs = ref([])
   let messageCount = 0
@@ -107,6 +111,7 @@
                   store.hasLogos = false // TODO: use plugin settings
                   store.volume = initialdata.volume
                   store.replaying = initialdata.replaying
+                  store.is_recording = initialdata.is_recording
                   store.ScreenMode = initialdata.replaying ? Screen.Replay : Screen.TV
                   if (initialdata.current_display.type === 'channel') {
                     processTvData(initialdata.current_display as TVDisplay)
@@ -133,9 +138,27 @@
                 store.replaySpeed = posData.speed
                 break
               }
+              case 'timer': {
+                const timerData = data as TimerData
+                console.log('got timer data', timerData)
+                break
+              }
+              case 'timer_status_update': {
+                const timerStatusUpdate = data as TimerStatusData
+                store.is_recording = timerStatusUpdate.is_recording
+                // TODO: timerStatusUpdate.active_recordings
+                // TODO: timerStatusUpdate.n_timer
+              }
               case 'osdmessage': {
                 const osdmessage = data as OSDMessage
-                addMessage(osdmessage.message, 'yellow')
+                const priorities = ['yellow', 'green', 'orange', 'red']
+                if (osdmessage.message.length > 0) {
+                  addMessage(osdmessage.message, priorities[osdmessage.priority])
+                } else {
+                  console.log('Close message')
+                  messages.value = []
+                  snackbarQueue.value?.clear()
+                }
               }
               // this.$emit(data.value.event, data.value.object)
             }
@@ -150,4 +173,3 @@
     }
   })
 </script>
-
