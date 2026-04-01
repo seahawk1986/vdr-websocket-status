@@ -1,117 +1,27 @@
 // Utilities
 import { defineStore } from 'pinia'
 import { computed, ref, type Ref } from 'vue'
-
+import {
+  type epgEvent,
+  type InitialData,
+  type OSDData,
+  type OSDMessage,
+  type Position,
+  type Recording,
+  type ReplayDisplay,
+  Screen,
+  type SnackbarMessage,
+  type TimerData,
+  type TimerStatusData,
+  type TVDisplay,
+  type VolumeData,
+} from '@/stores/interfaces'
+import { useOsdStore } from '@/stores/osd'
 import WebSocketClient from '@/websocket'
-import { fa } from 'vuetify/locale'
-
-export interface SnackbarMessage {
-  text: string
-  color?: string
-  timeout?: number
-  onDismiss?: (reason: string) => void
-}
-
-export interface LiveTV {
-
-}
-
-export interface Position {
-  current: number
-  total: number
-  play: boolean
-  speed: number
-  forward: boolean
-  type: string
-}
-
-export interface Event {
-  duration: number
-  progress: number
-  short_text?: string
-  start: number
-  title: string
-}
-
-export interface ChannelTech {
-  has_dolby: boolean
-  audio_tracks_count: number
-  is_encrypted: boolean
-  has_teletext: boolean
-}
-
-export interface TVDisplay {
-  epg?: {
-    present?: Event
-    following?: Event
-  }
-  tech?: ChannelTech
-  name: string
-  number: number
-  logo: string
-  type: string
-}
-
-export interface Recording {
-  description: string
-  duration: number
-  title: string
-  status: string
-  type: string
-}
-
-export interface ReplayDisplay {
-  name: string
-  recording?: Recording
-  status: string
-  play: boolean
-  speed: number
-  type: string
-}
-
-export interface InitialData {
-  active_recordings: number
-  current_display: TVDisplay | ReplayDisplay
-  is_recording: boolean
-  n_timer: number
-  replaying: boolean
-  volume: number
-  type: string
-}
-
-export interface TimerData {
-  type: string
-  timer_name: string
-  timer_id: number
-  timer_change: boolean
-  timer_channel_id: string
-  timer_channel_name: string
-}
-
-export interface TimerStatusData {
-  type: string
-  is_recording: boolean
-  active_recordings: number
-  n_timer: number
-}
-
-export interface VolumeData {
-  type: string
-  volume: number
-}
-
-export enum Screen {
-  NotConnected = -1,
-  TV = 0,
-  Replay = 1,
-}
-
-export interface OSDMessage {
-  message: string
-  priority: number
-}
 
 export const useAppStore = defineStore('app', () => {
+  const osdStore = useOsdStore()
+
   const defaultPort = 6742
   const hasLogos = ref(false)
   const params = new URLSearchParams(document.location.search)
@@ -133,6 +43,7 @@ export const useAppStore = defineStore('app', () => {
     return ScreenMode.value === Screen.NotConnected
   })
   const replayName = ref('')
+  const replayShortText = ref('')
   const replayRecording: Ref<Recording | null> = ref(null)
   const replayPosition = ref(0)
   const replayProgress = computed(() => {
@@ -151,14 +62,15 @@ export const useAppStore = defineStore('app', () => {
   const channelAudioTracksCount = ref(0)
   const channelLogo = ref('')
 
-  const currentEvent: Ref<null | Event> = ref(null)
+  const currentEvent: Ref<null | epgEvent> = ref(null)
   const nextEvent: Ref<null | Event> = ref(null)
-
 
   const snackBarMessages = ref<SnackbarMessage[]>([])
   const clearOSDListeners = new Set<(data: any) => void>()
 
   const clearOSD = () => {
+    osdStore.clearOsd()
+    // cleanup osd messages
     snackBarMessages.value = []
     for (const callback of clearOSDListeners) {
       callback('clearosd')
@@ -198,7 +110,8 @@ export const useAppStore = defineStore('app', () => {
   }
   function processReplayData(data: ReplayDisplay) {
     ScreenMode.value = data.status === 'started' ? Screen.Replay : Screen.TV
-    replayName.value = data.name
+    replayName.value = data.recording?.title ?? data.name
+    replayShortText.value = data.recording?.subtitle ?? ''
     replaying.value = true
     replaying.value = data.status === 'started'
     replayRecording.value = data.recording ?? null
@@ -227,7 +140,15 @@ export const useAppStore = defineStore('app', () => {
       },
       onmessage: event => {
         try {
+          if (!event || !event.data) {
+            console.log('got empty even data:', event.data)
+            return
+          }
           const data = JSON.parse(event.data.replace())
+          if (!data) {
+            console.log('got empty json')
+            return
+          }
           lastMessage.value = data
           console.log('got data:', data)
           switch (data.type) {
@@ -276,6 +197,14 @@ export const useAppStore = defineStore('app', () => {
               is_recording.value = timerStatusUpdate.is_recording
               // TODO: timerStatusUpdate.active_recordings
               // TODO: timerStatusUpdate.n_timer
+              break
+            }
+            case 'osd': {
+              const osd = data as OSDData
+              if (osd.sub == 'osdclear') {
+                clearOSD()
+              }
+              osdStore.handleEvent(osd)
               break
             }
             case 'osdmessage': {
@@ -329,6 +258,7 @@ export const useAppStore = defineStore('app', () => {
     showEndTime,
     showLargeTVView,
     replayName,
+    replayShortText,
     replayRecording,
     replayPosition,
     replayPositionTotal,

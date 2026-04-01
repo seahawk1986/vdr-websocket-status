@@ -120,7 +120,9 @@
     </div>
     <Teleport to="#footer-actions">
       <v-sheet class="d-flex justify-center  align-center bg-background pa-4 flex-grow-1 w-100">
-        <date-time format="fullDateTime24h" />
+        <div :style="{ fontSize: 'clamp(3rem, 6vw, 8rem)' }">
+          <date-time format="fullDateTime24h" />
+        </div>
       </v-sheet>
     </Teleport>
   </v-card>

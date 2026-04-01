@@ -23,7 +23,7 @@
                   class="d-flex justify-center text-xs-center text-display-large"
                   cols="12"
                 >
-                  Waiting for VDR websocket connection …
+                  Waiting for VDR …
                 </v-col>
                 <v-col
                   class="d-flex justify-center"

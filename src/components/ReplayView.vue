@@ -42,6 +42,9 @@
             <MarqueeText :content="store.replayName">
               {{ store.replayName }}
             </MarqueeText>
+            <MarqueeText v-if="store.replayShortText.length > 0" :content="store.replayShortText">
+              {{ store.replayShortText }}
+            </MarqueeText>
           </v-sheet>
         </div>
         <v-progress-linear

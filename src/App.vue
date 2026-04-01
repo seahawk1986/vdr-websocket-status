@@ -19,6 +19,7 @@
           </div>
         </template>
       </v-snackbar-queue>
+      <OSDMenu />
       <template v-if="store.ScreenMode == Screen.TV">
         <LargeTvView v-if="store.showLargeTVView" />
         <TvView v-else />
@@ -34,13 +35,13 @@
 <script lang="ts" setup>
   import type { VSnackbarQueue } from 'vuetify/components'
   import { onMounted, ref, type Ref } from 'vue'
-  import { Screen, useAppStore } from '@/stores/app'
-  import ConnectView from './components/ConnectView.vue'
-  import DateTime from './components/DateTime.vue'
-  import LargeTvView from './components/LargeTvView.vue'
-  import ReplayView from './components/ReplayView.vue'
-  import TvStatusSymbols from './components/TvStatusSymbols.vue'
-  import TvView from './components/TvView.vue'
+  import ConnectView from '@/components/ConnectView.vue'
+  import LargeTvView from '@/components/LargeTvView.vue'
+  import OSDMenu from '@/components/OSDMenu.vue'
+  import ReplayView from '@/components/ReplayView.vue'
+  import TvView from '@/components/TvView.vue'
+  import { useAppStore } from '@/stores/app'
+  import { Screen } from '@/stores/interfaces'
   const store = useAppStore()
   const snackbarQueue = ref<InstanceType<typeof VSnackbarQueue> | null>(null)
 
