@@ -116,6 +116,8 @@ export const useAppStore = defineStore('app', () => {
   const hasLogos = ref(false)
   const params = new URLSearchParams(document.location.search)
   const userSuppliedPort = params.get('port')
+  const showEndTime = params.has('show_end_time')
+
   const port = computed(() => {
     return userSuppliedPort && userSuppliedPort.length > 0 ? userSuppliedPort : defaultPort
   })
@@ -323,6 +325,7 @@ export const useAppStore = defineStore('app', () => {
     channelLogo,
     currentChannelName,
     currentChannelNumber,
+    showEndTime,
     replayName,
     replayRecording,
     replayPosition,
