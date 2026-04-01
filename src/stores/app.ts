@@ -214,7 +214,7 @@ export const useAppStore = defineStore('app', () => {
       return
     } // prevent multiple connections
     wsClient = new WebSocketClient({
-      url: 'ws://localhost:6742',
+      url: `ws://${baseUrl.value}`,
       autoReconnectInterval: 1000,
       onopen: () => {
         isConnected.value = true
