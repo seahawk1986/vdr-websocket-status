@@ -1,5 +1,5 @@
 <template>
-  <v-sheet class="text-fluid-display elevation-0 d-flex flex-column align-center justify-center h-100 w-100 bg-background">
+  <v-sheet :class="`${store.showLargeTVView ? 'title-fluid-display' : 'text-fluid-display'} elevation-0 d-flex flex-column align-center justify-center h-100 w-100 bg-transparent`">
     <div class="d-flex align-center flex-nowrap">
       {{ currentTimeString }}
     </div>
@@ -9,8 +9,14 @@
 <script setup lang="ts">
   import { computed, onBeforeUnmount, ref } from 'vue'
   import { useDate } from 'vuetify'
+  import { useAppStore } from '@/stores/app'
 
+  const store = useAppStore()
   const date = useDate()
+
+  const props = defineProps<{
+    format: string
+  }>()
 
   const currentTime = ref(new Date())
   function updateCurrentTime () {
@@ -22,7 +28,7 @@
   })
 
   const currentTimeString = computed(() => {
-    return date.format(currentTime.value, 'fullDateTime24h')
+    return date.format(currentTime.value, props.format)
   })
 </script>
 
@@ -31,6 +37,11 @@
   font-size: clamp(1.0rem, 5vw + 0.5rem, 6rem) !important;
   line-height: 1.3 !important;
   }
+
+  .title-fluid-display :deep(*) {
+  font-size: clamp(2.0rem, 8vw + 0.5rem, 10rem) !important;
+  line-height: 1.3 !important;
+}
 
   .description-text {
 

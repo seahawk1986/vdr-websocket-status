@@ -16,6 +16,7 @@
                 >
                   <CurrentTime
                     class="text-fluid-display"
+                    format="FullDateTime24h"
                   />
                 </v-col>
                 <v-col

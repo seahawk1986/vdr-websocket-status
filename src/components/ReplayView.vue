@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { computed } from 'vue'
   import { useAppStore } from '@/stores/app'
+  import DateTime from './DateTime.vue'
   import MarqueeText from './MarqueeText.vue'
   const store = useAppStore()
 
@@ -30,20 +31,19 @@
 </script>
 
 <template>
-  <v-card bg-background class="text-fluid-display elevation-0 d-flex flex-column h-100" variant="flat">
-    <template #title>
-      <div class="d-flex w-100" style="min-width: 0;">
-        <v-sheet class="pa-2 bg-transparent flex-grow-1" style="min-width: 0;">
-          <MarqueeText :content="store.replayName">
-            {{ store.replayName }}
-          </MarqueeText>
-        </v-sheet>
-      </div>
-    </template>
-
-    <template #text>
-      <!-- 'flex-grow-1' fills the available space, 'overflow-y-auto' allows scrolling -->
-      <div class="description-container overflow-y-auto pa-2">
+  <v-card
+    class="text-fluid-display elevation-0 d-flex flex-column fill-height bg-background"
+    variant="flat"
+  >
+    <v-card-item class="flex-shrink-0">
+      <template #title>
+        <div class="d-flex w-100 flex-shrink-0" style="min-width: 0;">
+          <v-sheet class="pa-2 bg-transparent flex-grow-1" style="min-width: 0;">
+            <MarqueeText :content="store.replayName">
+              {{ store.replayName }}
+            </MarqueeText>
+          </v-sheet>
+        </div>
         <v-progress-linear
           v-model="store.replayProgress"
           class="mb-6"
@@ -51,17 +51,41 @@
           height="15"
           rounded
         />
+      </template>
+    </v-card-item>
 
+    <v-card-text class="flex-grow-1 overflow-hidden pa-0">
+      <div class="description-container h-100 overflow-y-auto px-4">
         <div class="description-text">
           {{ store.replayRecording?.description }}
         </div>
       </div>
-      <v-icon :icon="replayIcon" size="x-large" />
-    </template>
+    </v-card-text>
+
+    <Teleport to="#footer-actions">
+      <v-sheet class="d-flex justify-space-evenly align-center bg-background px-4 pb-0 pt-0 flex-grow-1 w-100">
+        <div :style="{ fontSize: 'clamp(3rem, 5vw, 7rem)' }">
+          <v-icon :icon="replayIcon" />
+        </div>
+        <date-time format="fullDateTime24h" />
+      </v-sheet>
+    </Teleport>
   </v-card>
 </template>
 
 <style scoped>
+.h-100 {
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.description-text {
+  font-size: clamp(1.2rem, 3vw + 0.5rem, 2.5rem) !important;
+  opacity: 0.9;
+  white-space: normal;
+}
+
 .text-fluid-display :deep(*) {
   font-size: clamp(1.2rem, 6vw + 0.5rem, 6rem) !important;
   line-height: 1.3 !important;
@@ -75,10 +99,8 @@
   white-space: normal; /* allows reflow */
 }
 
-/* Container-Begrenzung für vertikales Scrollen */
 .description-container {
-  max-height: 60vh;
-  scrollbar-width: thin; /* for Firefox */
+  scrollbar-width: thin;
 }
 
 /* Scrollbar styling for Chrome/Edge/Safari */

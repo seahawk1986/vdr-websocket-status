@@ -50,7 +50,6 @@
   >
     <div class="content-wrapper">
 
-      <!-- channel info (number & name) -->
       <v-card-item class="bg-transparent py-4">
         <template #prepend>
           <div class="d-flex align-center flex-nowrap mr-4">
@@ -60,20 +59,13 @@
               :src="`http://${store.baseUrl}${store.channelLogo}`"
               :width="300"
             />
-            <!-- {{ store.currentChannelNumber }} -->
 
-            <!-- <v-divider class="mx-6" opacity="0.3" thickness="4" vertical /> -->
           </div>
         </template>
-        <v-card-title class="font-weight-bold pa-0 text-uppercase">
+        <v-card-title class="font-weight-bold pa-0 text-uppercase title-fluid-display">
           <MarqueeText class="flex-grow-1" :content="store.currentChannelName">
             {{ store.currentChannelName }}
           </MarqueeText>
-          <v-divider />
-        </v-card-title>
-        <!-- channel properties and status items-->
-        <v-card-title class="hide-sm-and-below">
-          <tv-status-symbols />
         </v-card-title>
       </v-card-item>
 
@@ -118,9 +110,17 @@
         </div>
       </v-card-text>
     </div>
+
+    <!-- Footer -->
     <Teleport to="#footer-actions">
-      <v-sheet class="d-flex justify-center  align-center bg-background pa-4 flex-grow-1 w-100">
-        <date-time format="fullDateTime24h" />
+      <v-sheet class="d-flex justify-space-around  align-center bg-background pa-4 flex-grow-1 w-100">
+
+        <div :style="{ fontSize: 'clamp(3rem, 5vw, 7rem)' }">
+          <tv-status-symbols />
+        </div>
+        <div :style="{ fontSize: 'clamp(3rem, 5vw, 7rem)' }">
+          <date-time format="fullTime24h" />
+        </div>
       </v-sheet>
     </Teleport>
   </v-card>
@@ -129,6 +129,11 @@
 <style scoped>
 .text-fluid-display :deep(*) {
   font-size: clamp(1.2rem, 5vw + 0.5rem, 6rem) !important;
+  line-height: 1.3 !important;
+}
+
+.title-fluid-display :deep(*) {
+  font-size: clamp(2rem, 7vw + 0.5rem, 10rem) !important;
   line-height: 1.3 !important;
 }
 /* fill v-main */

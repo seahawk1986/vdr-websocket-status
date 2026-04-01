@@ -117,6 +117,7 @@ export const useAppStore = defineStore('app', () => {
   const params = new URLSearchParams(document.location.search)
   const userSuppliedPort = params.get('port')
   const showEndTime = params.has('show_end_time')
+  const showLargeTVView = params.has('large_tv_view')
 
   const port = computed(() => {
     return userSuppliedPort && userSuppliedPort.length > 0 ? userSuppliedPort : defaultPort
@@ -326,6 +327,7 @@ export const useAppStore = defineStore('app', () => {
     currentChannelName,
     currentChannelNumber,
     showEndTime,
+    showLargeTVView,
     replayName,
     replayRecording,
     replayPosition,
