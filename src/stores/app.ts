@@ -2,6 +2,16 @@
 import { defineStore } from 'pinia'
 import { computed, ref, type Ref } from 'vue'
 
+import WebSocketClient from '@/websocket'
+import { fa } from 'vuetify/locale'
+
+export interface SnackbarMessage {
+  text: string
+  color?: string
+  timeout?: number
+  onDismiss?: (reason: string) => void
+}
+
 export interface LiveTV {
 
 }
@@ -141,7 +151,168 @@ export const useAppStore = defineStore('app', () => {
   const currentEvent: Ref<null | Event> = ref(null)
   const nextEvent: Ref<null | Event> = ref(null)
 
+
+  const snackBarMessages = ref<SnackbarMessage[]>([])
+  const clearOSDListeners = new Set<(data: any) => void>()
+
+  const clearOSD = () => {
+    snackBarMessages.value = []
+    for (const callback of clearOSDListeners) {
+      callback('clearosd')
+    }
+  }
+
+  function onClearOSD(callback: (data: any) => void) {
+    clearOSDListeners.add(callback)
+  }
+
+  function addMessage(text: string, color: string) {
+    snackBarMessages.value.push({
+      text,
+      color,
+    })
+  }
+
+  function processTvData(data: TVDisplay) {
+    currentChannelNumber.value = data.number
+    currentChannelName.value = data.name
+    if (data.epg) {
+      currentEvent.value = data.epg.present ?? null
+      nextEvent.value = data.epg.following ?? null
+    } else {
+      currentEvent.value = null
+      nextEvent.value = null
+    }
+    if (data.logo) {
+      channelLogo.value = data.logo
+    }
+    if (data.tech) {
+      channelIsEncrypted.value = data.tech.is_encrypted
+      channelHasTeletext.value = data.tech.has_teletext
+      channelHasDolby.value = data.tech.has_dolby
+      channelAudioTracksCount.value = data.tech.audio_tracks_count
+    }
+  }
+  function processReplayData(data: ReplayDisplay) {
+    ScreenMode.value = data.status === 'started' ? Screen.Replay : Screen.TV
+    replayName.value = data.name
+    replaying.value = true
+    replaying.value = data.status === 'started'
+    replayRecording.value = data.recording ?? null
+  }
+
+  const isActive = ref(false) // this is set to true after we receive the first message and to false on a close
+  const isConnected = ref(false)
+  const lastMessage = ref<any>(null)
+  let wsClient: WebSocketClient | null = null
+
+  function webSocketConnect() {
+    if (wsClient) {
+      return
+    } // prevent multiple connections
+    wsClient = new WebSocketClient({
+      url: 'ws://localhost:6742',
+      autoReconnectInterval: 1000,
+      onopen: () => {
+        isConnected.value = true
+        console.log('Store: ws connected')
+      },
+      onclose: () => {
+        isConnected.value = false
+        ScreenMode.value = Screen.NotConnected
+        console.log('Store: ws lost connection')
+      },
+      onmessage: event => {
+        try {
+          const data = JSON.parse(event.data.replace())
+          lastMessage.value = data
+          console.log('got data:', data)
+          switch (data.type) {
+            case 'initial_full_state': {
+              {
+                clearOSD()
+                const initialdata = data as InitialData
+                isActive.value = true
+                hasLogos.value = false // TODO: use plugin settings
+                volume.value = initialdata.volume
+                replaying.value = initialdata.replaying
+                is_recording.value = initialdata.is_recording
+                ScreenMode.value = initialdata.replaying ? Screen.Replay : Screen.TV
+                if (initialdata.current_display.type === 'channel') {
+                  processTvData(initialdata.current_display as TVDisplay)
+                } else if (initialdata.current_display.type === 'replay') {
+                  processReplayData(initialdata.current_display as ReplayDisplay)
+                }
+              }
+              break
+            }
+            case 'channel': {
+              processTvData(data as TVDisplay)
+              break
+            }
+            case 'replay': {
+              processReplayData(data as ReplayDisplay)
+              break
+            }
+            case 'pos': {
+              const posData = data as Position
+              replayPosition.value = posData.current
+              replayPositionTotal.value = posData.total
+              replaying.value = posData.play
+              replayDirectionForward.value = posData.forward
+              replaySpeed.value = posData.speed
+              break
+            }
+            case 'timer': {
+              const timerData = data as TimerData
+              console.log('got timer data', timerData)
+              break
+            }
+            case 'timer_status_update': {
+              const timerStatusUpdate = data as TimerStatusData
+              is_recording.value = timerStatusUpdate.is_recording
+              // TODO: timerStatusUpdate.active_recordings
+              // TODO: timerStatusUpdate.n_timer
+              break
+            }
+            case 'osdmessage': {
+              const osdmessage = data as OSDMessage
+              const priorities = ['yellow', 'green', 'orange', 'red']
+              if (osdmessage.message.length > 0) {
+                addMessage(osdmessage.message, priorities[osdmessage.priority])
+              } else {
+                clearOSD()
+              }
+              break
+            }
+            case 'volume': {
+              const volumedata = data as VolumeData
+              volume.value = volumedata.volume
+              break
+            }
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      },
+      onerror: err => {
+        console.error('Store: ws connection error', err)
+      },
+    })
+  }
+
+  function sendMessage(payload: object) {
+    wsClient?.send(payload)
+  }
+
   return {
+    isConnected,
+    lastMessage,
+    webSocketConnect,
+    sendMessage,
+    snackBarMessages,
+    onClearOSD,
+
     hasLogos,
     IsInitializing,
     baseUrl, ScreenMode,

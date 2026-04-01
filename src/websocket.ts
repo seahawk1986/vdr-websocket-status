@@ -1,134 +1,93 @@
-/* WebsocketClient, usage:
-wsClient = new WebSocketClient({
-    url: "ws://" + location.host,
-    protocol: "optional",
-    autoReconnectInterval: 5000, // default is 0, without reconnect
-    onopen: () => {  ...  },
-    onmessage: (msg) => {  ...  },
-    onclose: function () {  ...  },
-    onerror: function (err) {  ...  }
-})
-*/
+type WsCallback<T = Event> = (event: T) => void
 
-interface WsFunctionInterface {
-  (event: Event): any | null
+interface WebSocketClientOptions {
+  url: string;
+  protocol?: string | string[];
+  autoReconnectInterval?: number;
+  onopen?: WsCallback;
+  onmessage?: WsCallback<MessageEvent>;
+  onclose?: WsCallback<CloseEvent>;
+  onerror?: WsCallback<Event>;
 }
 
-// interface WsErrorFunctionInterface {
-//   (event: Event|ErrorEvent): any|null
-// }
+export default class WebSocketClient {
+  private ws: WebSocket | null = null;
+  private queue: object[] = [];
+  private options: WebSocketClientOptions;
+  private isManualClose = false;
 
-// TODO: currently this implementation doesn't recognize if the VDR dies resp. is restarted
-
-interface WsCloseFunctionInterface {
-  (event: CloseEvent): any | null
-}
-
-interface WsMessageFunctionInterface {
-  (event: MessageEvent): any | null
-}
-
-interface WebSocketClientOptionInterface {
-  url: string
-  protocol: string
-  autoReconnectInterval: number
-  onopen: WsFunctionInterface
-  onclose: WsCloseFunctionInterface
-  onmessage: WsMessageFunctionInterface
-  // onerror: WsErrorFunctionInterface
-}
-
-export default class WebSocketClientClass {
-  options: WebSocketClientOptionInterface
-  queue: object[] | null = []
-  ws: WebSocket | null = null
-
-  constructor(options: WebSocketClientOptionInterface) {
-    if (!window.WebSocket) {
-      console.log('Error: no Websocket support')
-      throw new Error('No websocket support available')
-    }
-    this.options = options
-    this.open()
+  constructor(options: WebSocketClientOptions) {
+    this.options = { autoReconnectInterval: 0, ...options };
+    this.open();
   }
 
-  onclose() {
-    console.log('websocket connection closed')
-  }
 
-  onerror(err: Event) {
-    console.log('websocket error:', err)
-  }
-
-  // for (const key in options) { this[key] = options[key] }
-  reconnect(e: Event) {
-    if (this.options.autoReconnectInterval) {
-      console.log(`WebSocketClient: retry in ${this.options.autoReconnectInterval} ms`, e)
-      setTimeout(() => {
-        console.log('WebSocketClient: reconnecting...')
-        this.open()
-      }, this.options.autoReconnectInterval)
-    }
-  }
-
-  send(JSONobj: object) {
-    if (this.queue) {
-      this.queue.push(JSONobj)
+  public send(data: object): void {
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify(data));
     } else {
-      this.ws?.send(JSON.stringify(JSONobj))
+      this.queue.push(data);
     }
   }
 
-  open() {
-    this.ws = new WebSocket(this.options.url, this.options.protocol)
-    console.log('ws created:', this.ws)
-    const client = this
-    this.ws.addEventListener('open', function (e) {
-      if (client.queue && client.ws) {
-        let JSONobj
-        while ((JSONobj = client.queue.shift())) {
-          client.ws.send(JSON.stringify(JSONobj))
-        }
-        client.queue = null
-      }
-      client.options.onopen(e)
-    })
-    this.ws.onmessage = this.options.onmessage
-    this.ws.addEventListener('close', function (e) {
-      // console.log('got WS onclose callback: ', e)
-      client.queue = []
-      switch (e.code) {
-        case 1000: { // CLOSE_NORMAL
-          console.log('WebSocket: closed')
-          break
-        }
-        default: { // Abnormal closure
-          client.reconnect(e)
-          break
-        }
-      }
-      client.options.onclose && client.options.onclose(e)
-    })
-    this.ws.onerror = function (e: Event): any | null {
-      console.log('ws.onerror got:', e)
-      switch (e.type) {
-        case 'ECONNREFUSED': {
-          client.reconnect(e)
-          break
-        }
-        default: {
-          client.onerror || client.onerror(e)
-          break
-        }
-      }
-    }
+  public close(): void {
+    this.isManualClose = true;
+    this.ws?.close(1000);
   }
 
-  reopen() {
+
+  private open(): void {
+    this.isManualClose = false;
+    this.ws = new WebSocket(this.options.url, this.options.protocol);
+
+    // Listener registrieren
+    this.ws.addEventListener('open', this.handleOpen);
+    this.ws.addEventListener('message', this.handleMessage as EventListener);
+    this.ws.addEventListener('error', this.handleError);
+    this.ws.addEventListener('close', this.handleClose as EventListener);
+  }
+
+  private handleOpen = (e: Event): void => {
+    console.log('WebSocket connected');
+    this.flushQueue();
+    this.options.onopen?.(e);
+  };
+
+  private handleMessage = (e: MessageEvent): void => {
+    this.options.onmessage?.(e);
+  };
+
+  private handleError = (e: Event): void => {
+    console.error('WebSocket error:', e);
+    this.options.onerror?.(e);
+  };
+
+  private handleClose = (e: CloseEvent): void => {
+    this.cleanup() // remove old listeners
+    this.options.onclose?.(e);
+
+    if (!this.isManualClose && e.code !== 1000 && this.options.autoReconnectInterval! > 0) {
+      console.log(`WebSocket: Reconnecting in ${this.options.autoReconnectInterval}ms...`);
+      setTimeout(() => this.open(), this.options.autoReconnectInterval);
+    }
+  };
+
+  private cleanup(): void {
     if (this.ws) {
-      this.ws.onerror = this.ws.onclose = this.ws.onmessage = null
-      this.ws.close()
-      this.open()
+      this.ws.removeEventListener('open', this.handleOpen);
+      this.ws.removeEventListener('message', this.handleMessage as EventListener);
+      this.ws.removeEventListener('error', this.handleError);
+      this.ws.removeEventListener('close', this.handleClose as EventListener);
+      this.ws = null;
+    }
+  }
+
+  private flushQueue(): void {
+    while (this.queue.length > 0 && this.ws?.readyState === WebSocket.OPEN) {
+      const obj = this.queue.shift();
+      if (obj) {
+        this.ws.send(JSON.stringify(obj))
+      }
     }
   }
 }
