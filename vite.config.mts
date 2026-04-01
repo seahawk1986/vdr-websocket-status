@@ -41,13 +41,13 @@ export default defineConfig({
     }),
     {
       name: 'exclude-unused-fonts',
-      // Dieser Hook wird aufgerufen, bevor Vite ein Asset generiert
+      // call this hook before vite generates assets
       generateBundle(_, bundle) {
         for (const fileName in bundle) {
-          // Prüfe auf die Dateiendungen, die du NICHT willst
-          if (fileName.match(/\.(ttf|eot|woff|otf)$/)) {
-            delete bundle[fileName];
-            console.log(`🗑️  Asset entfernt: ${fileName}`);
+          // check for fonts extentions we don't want to keep
+          if (/\.(ttf|eot|woff|otf)$/.test(fileName)) {
+            delete bundle[fileName]
+            console.log(`🗑️  Asset entfernt: ${fileName}`)
           }
         }
       }
