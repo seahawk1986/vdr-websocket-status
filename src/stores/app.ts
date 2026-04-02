@@ -27,9 +27,7 @@ export const useAppStore = defineStore('app', () => {
   const params = new URLSearchParams(document.location.search)
   const userSuppliedPort = params.get('port')
   const showEndTime = params.has('show_end_time')
-  const showLargeTVView = params.has('large_tv_view')
-  const showClockTVView = params.has('clock_tv_view')
-  const noBanzaiView = params.has('nobanzai')
+  const userSuppliedTheme = params.get('theme')
 
   const port = computed(() => {
     return userSuppliedPort && userSuppliedPort.length > 0 ? userSuppliedPort : defaultPort
@@ -66,6 +64,40 @@ export const useAppStore = defineStore('app', () => {
 
   const currentEvent: Ref<null | epgEvent> = ref(null)
   const nextEvent: Ref<null | epgEvent> = ref(null)
+
+  const currentStartDate = computed(() => {
+    if (currentEvent.value?.start) {
+      const d = new Date(currentEvent.value?.start * 1000)
+      return d
+    }
+    return null
+  })
+
+  const currentEndDate = computed(() => {
+    if (currentEvent.value?.duration && currentEvent.value?.start) {
+      const endDate = new Date(currentEvent.value.start * 1000 + currentEvent.value.duration * 1000)
+      return endDate
+    } else {
+      return null
+    }
+  })
+
+  const followingStartDate = computed(() => {
+    if (nextEvent.value?.start) {
+      const d = new Date(nextEvent.value.start * 1000)
+      return d
+    }
+    return null
+  })
+
+  const followingEndDate = computed(() => {
+    if (nextEvent.value?.duration && nextEvent.value?.start) {
+      const endDate = new Date(nextEvent.value.start * 1000 + nextEvent.value.duration * 1000)
+      return endDate
+    } else {
+      return null
+    }
+  })
 
   const snackBarMessages = ref<SnackbarMessage[]>([])
 
@@ -256,6 +288,7 @@ export const useAppStore = defineStore('app', () => {
     showLargeTVView,
     showClockTVView,
     noBanzaiView,
+    userSuppliedTheme,
     replayName,
     replayShortText,
     replayRecording,
@@ -267,6 +300,10 @@ export const useAppStore = defineStore('app', () => {
     replaySpeed,
     is_recording,
     currentEvent,
+    currentStartDate,
+    currentEndDate,
+    followingStartDate,
+    followingEndDate,
     nextEvent,
   }
 })

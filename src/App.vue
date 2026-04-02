@@ -37,17 +37,34 @@
 
 <script lang="ts" setup>
   import type { VSnackbarQueue } from 'vuetify/components'
-  import { onMounted, onUnmounted, ref, watch } from 'vue'
+  import { onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
   import ClockTvView from '@/components/ClockTvView.vue'
   import ConnectView from '@/components/ConnectView.vue'
   import LargeTvView from '@/components/LargeTvView.vue'
   import NoBanzai from '@/components/NoBanzai.vue'
   import OSDMenu from '@/components/OSDMenu.vue'
   import ReplayView from '@/components/ReplayView.vue'
-  import TvView from '@/components/TvView.vue'
+  // import TvView from '@/components/TvView.vue'
+  import DefaultTvView from '@/components/TvView.vue'
   import { useAppStore } from '@/stores/app'
   import { Screen } from '@/stores/interfaces'
+
   const store = useAppStore()
+
+  const modules = import.meta.glob('./components/themes/*/TvView.vue', { eager: true })
+  console.log('modules:', modules)
+  const TvView = shallowRef<any>(DefaultTvView)
+  if (store.userSuppliedTheme) {
+    const targetPath = `./components/themes/${store.userSuppliedTheme}/TvView.vue`
+    if (modules[targetPath]) {
+      const mod = modules[targetPath] as any
+      TvView.value = mod.default || mod
+      console.log(`[DynamicView] Successfully switched to: ${store.userSuppliedTheme}`)
+    } else {
+      console.error(`[DynamicView] File not found in modules: ${targetPath}`)
+    }
+  }
+
   const snackbarQueue = ref<InstanceType<typeof VSnackbarQueue> | null>(null)
 
   function clearSnackbar () {

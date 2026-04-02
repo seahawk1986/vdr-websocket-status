@@ -1,44 +1,11 @@
 <script setup lang="ts">
-  import { computed } from 'vue'
   import { useDate } from 'vuetify'
+  import DateTime from '@/components/DateTime.vue'
+  import MarqueeText from '@/components/MarqueeText.vue'
+  import TvStatusSymbols from '@/components/TvStatusSymbols.vue'
   import { useAppStore } from '@/stores/app'
-  import DateTime from './DateTime.vue'
-  import MarqueeText from './MarqueeText.vue'
-  import TvStatusSymbols from './TvStatusSymbols.vue'
   const store = useAppStore()
   const date = useDate()
-
-  const currentStartDate = computed(() => {
-    if (store.currentEvent?.start) {
-      const d = new Date(store.currentEvent.start * 1000)
-      return d
-    }
-    return null
-  })
-  const currentEndDate = computed(() => {
-    if (store.currentEvent?.duration && store.currentEvent?.start) {
-      const endDate = new Date(store.currentEvent.start * 1000 + store.currentEvent.duration * 1000)
-      return endDate
-    } else {
-      return null
-    }
-  })
-  const followingStartDate = computed(() => {
-    if (store.nextEvent?.start) {
-      const d = new Date(store.nextEvent.start * 1000)
-      return d
-    }
-    return null
-  })
-
-  const followingEndDate = computed(() => {
-    if (store.nextEvent?.duration && store.nextEvent?.start) {
-      const endDate = new Date(store.nextEvent.start * 1000 + store.nextEvent.duration * 1000)
-      return endDate
-    } else {
-      return null
-    }
-  })
 
 </script>
 
@@ -76,7 +43,7 @@
           <v-sheet class="pa-0 bg-transparent">
             <div class="d-flex align-center overflow-hidden">
               <div class="flex-shrink-0 opacity-80 time-width">
-                {{ date.format(currentStartDate, 'fullTime24h') }}<template v-if="store.showEndTime"> - {{ date.format(currentEndDate, 'fullTime24h') }}</template>
+                {{ date.format(store.currentStartDate, 'fullTime24h') }}<template v-if="store.showEndTime"> - {{ date.format(store.currentEndDate, 'fullTime24h') }}</template>
               </div>
               <v-divider class="mx-6" opacity="0.3" thickness="4" vertical />
               <MarqueeText class="flex-grow-1" :content="store.currentEvent?.title">
@@ -98,7 +65,7 @@
           <v-sheet class="pa-0 bg-transparent">
             <div class="d-flex align-center overflow-hidden">
               <div class="flex-shrink-0 opacity-80 time-width">
-                {{ date.format(followingStartDate, 'fullTime24h') }}<template v-if="store.showEndTime"> - {{ date.format(followingEndDate, 'fullTime24h') }}</template>
+                {{ date.format(store.followingStartDate, 'fullTime24h') }}<template v-if="store.showEndTime"> - {{ date.format(store.followingEndDate, 'fullTime24h') }}</template>
               </div>
               <v-divider class="mx-6" opacity="0.3" thickness="4" vertical />
               <MarqueeText class="flex-grow-1" :content="store.nextEvent?.title">

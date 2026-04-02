@@ -1,7 +1,7 @@
 <template>
   <v-card
     class="elevation-0 bg-black pa-0 ma-0"
-    style="overflow: hidden !important; position: fixed; top: 0; \
+    style="overflow: hidden !important; position: fixed; top: 0;
            left: 0; width: 100vw; height: 100vh; font-family: sans-serif;"
     tile
     variant="flat"
@@ -9,7 +9,7 @@
     <v-row
       class="pa-2 px-6 pb-0 flex-shrink-0"
       no-gutters
-      style="height: 26vh; background-color: #444444 !important; \
+      style="height: 26vh; background-color: #444444 !important;
              border-bottom: 1px solid #555555 !important;"
     >
       <v-col class="pa-0" cols="4">
@@ -81,8 +81,8 @@
     <v-row
       class="px-6 pb-2 align-center flex-shrink-0"
       no-gutters
-      style="height: 16vh; position: absolute; bottom: 0; width: 100%; \
-             background-color: #444444 !important; \
+      style="height: 16vh; position: absolute; bottom: 0; width: 100%;
+             background-color: #444444 !important;
              border-top: 1px solid #555555 !important;"
     >
       <v-col cols="6">
@@ -100,10 +100,11 @@
 <script setup lang="ts">
   import { computed } from 'vue'
   import { useDate } from 'vuetify'
+  import DateTime from '@/components/DateTime.vue'
+  import MarqueeText from '@/components/MarqueeText.vue'
+  import TvStatusSymbols from '@/components/TvStatusSymbols.vue'
   import { useAppStore } from '@/stores/app'
-  import DateTime from './DateTime.vue'
-  import MarqueeText from './MarqueeText.vue'
-  import TvStatusSymbols from './TvStatusSymbols.vue'
+
   const store = useAppStore()
   const date = useDate()
 
@@ -114,6 +115,7 @@
     }
     return null
   })
+
   const currentEndDate = computed(() => {
     if (store.currentEvent?.duration && store.currentEvent?.start) {
       const endDate = new Date(store.currentEvent.start * 1000 + store.currentEvent.duration * 1000)
@@ -122,6 +124,7 @@
       return null
     }
   })
+
   const followingStartDate = computed(() => {
     if (store.nextEvent?.start) {
       const d = new Date(store.nextEvent.start * 1000)
