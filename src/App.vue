@@ -22,10 +22,7 @@
       </v-snackbar-queue>
       <OSDMenu />
       <template v-if="store.ScreenMode == Screen.TV">
-        <LargeTvView v-if="store.showLargeTVView" />
-        <ClockTvView v-else-if="store.showClockTVView" />
-        <NoBanzai v-else-if="store.noBanzaiView" />
-        <TvView v-else />
+        <TvView />
       </template>
       <ReplayView v-else-if="store.ScreenMode == Screen.Replay" class="flex-grow-1" />
     </v-main>
@@ -38,13 +35,8 @@
 <script lang="ts" setup>
   import type { VSnackbarQueue } from 'vuetify/components'
   import { onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
-  import ClockTvView from '@/components/ClockTvView.vue'
-  import ConnectView from '@/components/ConnectView.vue'
-  import LargeTvView from '@/components/LargeTvView.vue'
-  import NoBanzai from '@/components/NoBanzai.vue'
   import OSDMenu from '@/components/OSDMenu.vue'
   import ReplayView from '@/components/ReplayView.vue'
-  // import TvView from '@/components/TvView.vue'
   import DefaultTvView from '@/components/TvView.vue'
   import { useAppStore } from '@/stores/app'
   import { Screen } from '@/stores/interfaces'

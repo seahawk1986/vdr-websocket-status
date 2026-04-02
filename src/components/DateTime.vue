@@ -1,5 +1,5 @@
 <template>
-  <v-sheet :class="`${store.showLargeTVView ? 'title-fluid-display' : 'text-fluid-display'} elevation-0 d-flex flex-column align-center justify-center h-100 w-100 bg-transparent`">
+  <v-sheet :class="`${store.userSuppliedTheme === 'LargeTV' ? 'title-fluid-display' : 'text-fluid-display'} elevation-0 d-flex flex-column align-center justify-center h-100 w-100 bg-transparent`">
     <div class="d-flex align-center flex-nowrap">
       {{ currentTimeString }}
     </div>
