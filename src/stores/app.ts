@@ -205,10 +205,11 @@ export const useAppStore = defineStore('app', () => {
             case 'osdmessage': {
               const osdmessage = data as OSDMessage
               const priorities = ['yellow', 'green', 'orange', 'red']
-              if (osdmessage.message.length > 0) {
+              if (osdmessage.message.length > 0 && osdmessage.priority >= 0) {
                 addMessage(osdmessage.message, priorities[osdmessage.priority])
               } else {
-                clearOSD()
+                snackBarMessages.value = []
+                lastOsdClear.value = new Date()
               }
               break
             }
