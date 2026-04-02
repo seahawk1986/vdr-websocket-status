@@ -35,6 +35,7 @@ export interface OSDList {
   sub: string
   focus: number
   items: string[]
+  title: string
   red: string
   green: string
   yellow: string

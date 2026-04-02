@@ -8,7 +8,7 @@ export const useOsdStore = defineStore('osd', () => {
   const items = ref<string[]>([])
   const focusIndex = ref(-1)
   const helpKeys = ref({ red: '', green: '', yellow: '', blue: '' })
-  const visible = ref<bool>(false)
+  const visible = ref<boolean>(false)
 
   // --- Actions ---
   function clearOsd() {
@@ -51,6 +51,7 @@ export const useOsdStore = defineStore('osd', () => {
         if (lData.focus !== undefined) {
           focusIndex.value = lData.focus
         }
+        title.value = lData.title
         helpKeys.value = {
           red: lData.red,
           green: lData.green,
