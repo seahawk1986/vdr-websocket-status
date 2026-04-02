@@ -112,7 +112,7 @@
     </div>
 
     <!-- Footer -->
-    <Teleport to="#footer-actions">
+    <Teleport defer to="#footer-actions">
       <v-sheet class="d-flex justify-space-around  align-center bg-background pa-4 flex-grow-1 w-100">
 
         <div :style="{ fontSize: 'clamp(3rem, 5vw, 7rem)' }">

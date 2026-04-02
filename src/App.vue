@@ -55,7 +55,11 @@
   })
 
   onMounted(() => {
-    store.webSocketConnect()
+    try {
+      store.webSocketConnect()
+    } catch (error) {
+      console.log('cloud not open ws connection', error)
+    }
   })
   onUnmounted(() => {})
 </script>
