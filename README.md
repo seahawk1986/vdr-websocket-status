@@ -4,7 +4,7 @@ Scaffolded with Vuetify CLI.
 
 ## 🧱 Stack
 
-- Framework: Vue 3 + Vite
+- Framework: Vue 4 + Vite
 - UI Library: Vuetify
 - Language: TypeScript
 - Package manager: npm
