@@ -8,6 +8,7 @@
         display-strategy="overflow"
         location="top"
         max-width="95vw"
+        style="z-index: 5000"
         :timeout="-1"
         :total-visible="1"
       >
@@ -34,7 +35,7 @@
 
 <script lang="ts" setup>
   import type { VSnackbarQueue } from 'vuetify/components'
-  import { onMounted, ref, type Ref } from 'vue'
+  import { onMounted, onUnmounted, ref, type Ref, watch } from 'vue'
   import ConnectView from '@/components/ConnectView.vue'
   import LargeTvView from '@/components/LargeTvView.vue'
   import OSDMenu from '@/components/OSDMenu.vue'
@@ -48,10 +49,13 @@
   function clearSnackbar () {
     snackbarQueue.value?.clear()
   }
-  store.onClearOSD(() => {
+
+  watch(() => store.lastOsdClear, () => {
     clearSnackbar()
   })
+
   onMounted(() => {
     store.webSocketConnect()
   })
+  onUnmounted(() => {})
 </script>

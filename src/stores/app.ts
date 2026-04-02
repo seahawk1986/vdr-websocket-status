@@ -1,6 +1,7 @@
 // Utilities
 import { defineStore } from 'pinia'
 import { computed, ref, type Ref } from 'vue'
+import { consoleError } from 'vuetify/lib/util/console.mjs'
 import {
   type epgEvent,
   type InitialData,
@@ -66,19 +67,13 @@ export const useAppStore = defineStore('app', () => {
   const nextEvent: Ref<null | Event> = ref(null)
 
   const snackBarMessages = ref<SnackbarMessage[]>([])
-  const clearOSDListeners = new Set<(data: any) => void>()
 
+  const lastOsdClear = ref<Date>(new Date())
   const clearOSD = () => {
     osdStore.clearOsd()
     // cleanup osd messages
     snackBarMessages.value = []
-    for (const callback of clearOSDListeners) {
-      callback('clearosd')
-    }
-  }
-
-  function onClearOSD(callback: (data: any) => void) {
-    clearOSDListeners.add(callback)
+    lastOsdClear.value = new Date()
   }
 
   function addMessage(text: string, color: string) {
@@ -201,7 +196,7 @@ export const useAppStore = defineStore('app', () => {
             }
             case 'osd': {
               const osd = data as OSDData
-              if (osd.sub == 'osdclear') {
+              if (osd.sub == 'clear') {
                 clearOSD()
               }
               osdStore.handleEvent(osd)
@@ -243,7 +238,7 @@ export const useAppStore = defineStore('app', () => {
     webSocketConnect,
     sendMessage,
     snackBarMessages,
-    onClearOSD,
+    lastOsdClear,
 
     hasLogos,
     IsInitializing,
