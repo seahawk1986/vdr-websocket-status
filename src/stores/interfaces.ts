@@ -88,8 +88,8 @@ export interface ChannelTech {
 
 export interface TVDisplay {
   epg?: {
-    present?: Event
-    following?: Event
+    present?: epgEvent
+    following?: epgEvent
   }
   tech?: ChannelTech
   name: string
@@ -102,13 +102,15 @@ export interface Recording {
   description: string
   duration: number
   title: string
-  shorttext: string
+  subtitle: string
   status: string
   type: string
 }
 
 export interface ReplayDisplay {
   name: string
+  title: string
+  subtitle?: string
   recording?: Recording
   status: string
   play: boolean

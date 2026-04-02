@@ -3,5 +3,7 @@
   "prettier.bracketSameLine": true,
   "prettier.configPath": ".prettierrc.json",
   "editor.formatOnSave": true,
-  "eslint.codeActionsOnSave.rules": [],
+  "eslint.codeActionsOnSave.rules": [
+    "source.fixAll.eslint": true,
+  ],
 }
