@@ -35,6 +35,7 @@
 <script lang="ts" setup>
   import type { VSnackbarQueue } from 'vuetify/components'
   import { onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
+  import ConnectView from '@/components/ConnectView.vue'
   import OSDMenu from '@/components/OSDMenu.vue'
   import ReplayView from '@/components/ReplayView.vue'
   import DefaultTvView from '@/components/TvView.vue'
