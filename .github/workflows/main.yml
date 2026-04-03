@@ -3,13 +3,13 @@ name: Build and Release vdr-websocket-status project
 on:
   push:
     tags:
-      - '*' # Reagiert auf jeden Tag (1.0.0, release-v1, etc.)
+      - '*'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Wichtig für das Erstellen von Releases
+      contents: write
 
     steps:
       - name: Checkout Code
@@ -25,7 +25,6 @@ jobs:
         run: npm ci
 
       - name: Update Version in package.json
-        # Synchronisiert die Version im package.json mit dem Git-Tag
         run: |
           npm version ${{ github.ref_name }} --no-git-tag-version --allow-same-version
 
@@ -33,7 +32,6 @@ jobs:
         run: npm run build
 
       - name: Create Release Archive
-        # Wir packen den 'dist' Ordner in ein Zip-Archiv
         run: |
           TAG=${{ github.ref_name }}
           ZIP_NAME="vue-osd-frontend-${TAG}.zip"
