@@ -5,57 +5,48 @@ export interface SnackbarMessage {
   onDismiss?: (reason: string) => void
 }
 
+export interface OsdHelpKeys {
+  red: string
+  green: string
+  yellow: string
+  blue: string
+}
+
+export interface OsdItem {
+  value: string
+  selectable: boolean
+}
+
+export interface OsdFullData {
+  // type: string
+  // sub: string
+  title: string
+  index: number
+  mode: string
+  keys: OsdHelpKeys
+  items: OsdItem[]
+  content: string // OsdTextItem
+  scroll: number // OsdTextItem should scroll if != 0 [downwards if < 0, up if > 0], no scrolling if 0
+}
+
+export interface OsdUpdate {
+  type: string
+  sub: string
+  index?: number
+  keys?: OsdHelpKeys
+  scroll?: number
+}
+
 export interface OSDData {
   type: string
   sub: string
-  data?: string
-  text?: string
+  title?: string
   index?: number
-  red?: string
-  green?: string
-  yellow?: string
-  blue?: string
-}
-
-export interface OSDTitle {
-  type: string
-  sub: string
-  data: string
-}
-
-export interface OSDItem {
-  type: string
-  sub: string
-  index: number
-  text: string
-}
-
-export interface OSDList {
-  type: string
-  sub: string
-  focus: number
-  items: string[]
-  title: string
-  red: string
-  green: string
-  yellow: string
-  blue: string
-}
-
-export interface OSDFocus {
-  type: string
-  sub: string
-  index: number
-}
-
-export interface OSDKeys {
-  type: string
-  sub: string
-  red: string
-  green: string
-  yellow: string
-  blue: string
-
+  mode?: string
+  keys?: OsdHelpKeys
+  items?: OsdItem[]
+  content?: string // OsdTextItem
+  scroll?: number // OsdTextItem should scroll if != 0 [downwards if < 0, up if > 0], no scrolling if 0
 }
 
 export interface LiveTV {
@@ -146,7 +137,9 @@ export interface TimerStatusData {
 
 export interface VolumeData {
   type: string
+  primary_volume?: number
   volume: number
+  absolute: boolean
 }
 
 export enum Screen {

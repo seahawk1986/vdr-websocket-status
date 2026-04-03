@@ -28,6 +28,8 @@ export const useAppStore = defineStore('app', () => {
   const userSuppliedPort = params.get('port')
   const showEndTime = params.has('show_end_time')
   const userSuppliedTheme = params.get('theme')
+  const userSuppliedScrollspeed = params.get('scrollspeed')
+  const scrollSpeed: number = Math.min(Math.max((Number(userSuppliedScrollspeed) || 50), 10), 100)
 
   const port = computed(() => {
     return userSuppliedPort && userSuppliedPort.length > 0 ? userSuppliedPort : defaultPort
@@ -248,7 +250,7 @@ export const useAppStore = defineStore('app', () => {
             }
             case 'volume': {
               const volumedata = data as VolumeData
-              volume.value = volumedata.volume
+              volume.value = volumedata.primary_volume ?? volumedata.absolute ? volumedata.volume : volume.value + volumedata.volume
               break
             }
           }
@@ -286,6 +288,7 @@ export const useAppStore = defineStore('app', () => {
     currentChannelNumber,
     showEndTime,
     userSuppliedTheme,
+    scrollSpeed,
     replayName,
     replayShortText,
     replayRecording,
