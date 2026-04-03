@@ -45,7 +45,7 @@ jobs:
         with:
           files: ${{ env.RELEASE_ZIP }}
           tag_name: ${{ github.ref_name }}
-          name: App Release ${{ github.ref_name }}
+          name: vdr-websocket-status Release ${{ github.ref_name }}
           body: "Automatischer Build für Tag ${{ github.ref_name }}"
           draft: false
           prerelease: false
