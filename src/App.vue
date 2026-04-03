@@ -34,29 +34,29 @@
 
 <script lang="ts" setup>
   import type { VSnackbarQueue } from 'vuetify/components'
-  import { onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
-  import ConnectView from '@/components/ConnectView.vue'
-  import OSDMenu from '@/components/OSDMenu.vue'
-  import ReplayView from '@/components/ReplayView.vue'
-  import DefaultTvView from '@/components/TvView.vue'
+  import { defineAsyncComponent, markRaw, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
   import { useAppStore } from '@/stores/app'
   import { Screen } from '@/stores/interfaces'
 
   const store = useAppStore()
+  const theme = store.userSuppliedTheme
 
-  const modules = import.meta.glob('./components/themes/*/TvView.vue', { eager: true })
-  console.log('modules:', modules)
-  const TvView = shallowRef<any>(DefaultTvView)
-  if (store.userSuppliedTheme) {
-    const targetPath = `./components/themes/${store.userSuppliedTheme}/TvView.vue`
-    if (modules[targetPath]) {
-      const mod = modules[targetPath] as any
-      TvView.value = mod.default || mod
-      console.log(`[DynamicView] Successfully switched to: ${store.userSuppliedTheme}`)
-    } else {
-      console.error(`[DynamicView] File not found in modules: ${targetPath}`)
-    }
+  function resolveComponent (name: string) {
+    return defineAsyncComponent(async () => {
+      try {
+        if (theme) {
+          return await import(`./components/themes/${theme}/${name}.vue`)
+        }
+        throw new Error('No theme')
+      } catch {
+        return await import(`./components/${name}.vue`)
+      }
+    })
   }
+  const ConnectView = markRaw(resolveComponent('ConnectView'))
+  const OSDMenu = markRaw(resolveComponent('OSDMenu'))
+  const ReplayView = markRaw(resolveComponent('ReplayView'))
+  const TvView = markRaw(resolveComponent('TvView'))
 
   const snackbarQueue = ref<InstanceType<typeof VSnackbarQueue> | null>(null)
 

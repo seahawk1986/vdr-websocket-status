@@ -1,8 +1,8 @@
 <script setup lang="ts">
   import { computed } from 'vue'
+  import DateTime from '@/components/DateTime.vue'
+  import MarqueeText from '@/components/MarqueeText.vue'
   import { useAppStore } from '@/stores/app'
-  import DateTime from './DateTime.vue'
-  import MarqueeText from './MarqueeText.vue'
   const store = useAppStore()
 
   const replayIcon = computed(() => {
