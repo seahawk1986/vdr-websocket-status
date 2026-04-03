@@ -1,0 +1,58 @@
+name: Build and Release vdr-websocket-status project
+
+on:
+  push:
+    tags:
+      - '*' # Reagiert auf jeden Tag (1.0.0, release-v1, etc.)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Wichtig für das Erstellen von Releases
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Update Version in package.json
+        # Synchronisiert die Version im package.json mit dem Git-Tag
+        run: |
+          npm version ${{ github.ref_name }} --no-git-tag-version
+
+      - name: Build Production Bundle
+        run: npm run build
+
+      - name: Create Release Archive
+        # Wir packen den 'dist' Ordner in ein Zip-Archiv
+        run: |
+          TAG=${{ github.ref_name }}
+          ZIP_NAME="vue-osd-frontend-${TAG}.zip"
+          zip -r "$ZIP_NAME" dist/
+          echo "RELEASE_ZIP=$ZIP_NAME" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.RELEASE_ZIP }}
+          tag_name: ${{ github.ref_name }}
+          name: App Release ${{ github.ref_name }}
+          body: "Automatischer Build für Tag ${{ github.ref_name }}"
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-files
+          path: dist/
