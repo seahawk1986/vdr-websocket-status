@@ -1,9 +1,23 @@
 <script setup lang="ts">
   import { computed } from 'vue'
+  import { useDate } from 'vuetify'
   import DateTime from '@/components/DateTime.vue'
   import MarqueeText from '@/components/MarqueeText.vue'
   import { useAppStore } from '@/stores/app'
+
+  const dateFormatter = useDate()
   const store = useAppStore()
+
+  function formattedDuration (duration: number) {
+    const hours = Math.floor(duration / 3600)
+    const minutes = Math.floor((duration % 3600) / 60)
+    const seconds = duration % 60
+
+    const m = minutes.toString().padStart(2, '0')
+    const s = seconds.toString().padStart(2, '0')
+
+    return `${hours}:${m}:${s}`
+  }
 
   const replayIcon = computed(() => {
     if (store.replaying) {
@@ -28,23 +42,83 @@
       return 'mdi-pause'
     }
   })
+
+  const startTime = computed(() => {
+    if (store.replayRecording) {
+      const startDate = new Date(store.replayRecording?.start * 1000)
+      return dateFormatter.format(startDate, 'fullTime24h')
+    } else return null
+  })
+
+  const endTime = computed(() => {
+    if (store.replayRecording) {
+      const endDate = new Date((store.replayRecording.start + store.replayRecording.duration) * 1000)
+      return dateFormatter.format(endDate, 'fullTime24h')
+    } else return null
+  })
+
+  const elapsedTime = computed(() => {
+    return formattedDuration(store.replayPosition)
+  })
+
+  const remainingTime = computed(() => {
+    const remainingSeconds = store.replayPositionTotal - store.replayPosition
+    return formattedDuration(remainingSeconds)
+  })
+  const endWallTime = computed(() => {
+    const remainingSeconds = store.replayPositionTotal - store.replayPosition
+    const d = new Date(Date.now() + remainingSeconds * 1000)
+    return dateFormatter.format(d, 'fullTime24h')
+  })
 </script>
 
 <template>
   <v-card
-    class="text-fluid-display elevation-0 d-flex flex-column fill-height bg-background"
+    class="text-fluid-display opacity-80 elevation-0 d-flex flex-column fill-height bg-background"
     variant="flat"
   >
     <v-card-item class="flex-shrink-0">
       <template #title>
         <div class="d-flex w-100 flex-shrink-0" style="min-width: 0;">
-          <v-sheet class="pa-2 bg-transparent flex-grow-1" style="min-width: 0;">
+          <v-sheet class="pa-2 bg-transparent  flex-grow-1" style="min-width: 0;">
             <MarqueeText :content="store.replayName">
               {{ store.replayName }}
             </MarqueeText>
             <MarqueeText v-if="store.replayShortText.length > 0" :content="store.replayShortText">
               {{ store.replayShortText }}
             </MarqueeText>
+            <!-- <MarqueeText color="green">
+              Aufnahmezeit: {{ startTime }} - {{ endTime }}
+            </MarqueeText>
+            <MarqueeText color="red">
+              Wiedergabeende: {{ endWallTime }}
+            </MarqueeText>
+            <MarqueeText color="yellow">
+            </MarqueeText> -->
+            <div class="d-flex align-center">
+              <div>{{ elapsedTime }}</div>
+              <v-divider
+                class="align-center"
+                color="primary"
+                gradient
+                opacity=".7"
+                thickness="12"
+                variant="dotted"
+              />
+              <div :style="{ fontSize: 'clamp(3rem, 5vw, 7rem)' }">
+                <v-icon :icon="replayIcon" />
+              </div>
+              <v-divider
+                class="align-center"
+                color="primary"
+                gradient
+                opacity=".7"
+                thickness="12"
+                variant="dotted"
+              />
+              <div>{{ remainingTime }}</div>
+            </div>
+
           </v-sheet>
         </div>
         <v-progress-linear
@@ -66,10 +140,10 @@
     </v-card-text>
 
     <Teleport defer to="#footer-actions">
-      <v-sheet class="d-flex justify-space-evenly align-center bg-background px-4 pb-0 pt-0 flex-grow-1 w-100">
-        <div :style="{ fontSize: 'clamp(3rem, 5vw, 7rem)' }">
+      <v-sheet class="d-flex justify-space-evenly align-center opacity-80 bg-background px-4 pb-0 pt-0 flex-grow-1 w-100">
+        <!-- <div :style="{ fontSize: 'clamp(3rem, 5vw, 7rem)' }">
           <v-icon :icon="replayIcon" />
-        </div>
+        </div> -->
         <date-time format="fullDateTime24h" />
       </v-sheet>
     </Teleport>

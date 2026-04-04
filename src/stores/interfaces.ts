@@ -90,10 +90,12 @@ export interface TVDisplay {
 }
 
 export interface Recording {
-  description: string
-  duration: number
   title: string
   subtitle: string
+  name: string
+  description: string
+  start: number
+  duration: number
   status: string
   type: string
 }
