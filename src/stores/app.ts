@@ -252,7 +252,11 @@ export const useAppStore = defineStore('app', () => {
             }
             case 'volume': {
               const volumedata = data as VolumeData
-              volume.value = volumedata.primary_volume ?? volumedata.absolute ? volumedata.volume : volume.value + volumedata.volume
+              if (volumedata.primary_volume === undefined) {
+                volume.value = volumedata.absolute ? volumedata.volume : volume.value + volumedata.volume
+              } else {
+                volume.value = volumedata.primary_volume
+              }
               break
             }
           }
@@ -297,7 +301,8 @@ export const useAppStore = defineStore('app', () => {
     replayRecording,
     replayPosition,
     replayPositionTotal,
-    replayProgress, volume,
+    replayProgress,
+    volume,
     replaying,
     replayDirectionForward,
     replaySpeed,
