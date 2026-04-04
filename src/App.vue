@@ -20,7 +20,9 @@
           </div>
         </template>
       </v-snackbar-queue>
-      <OSDMenu />
+      <template v-if="store.showOsd">
+        <OSDMenu />
+      </template>
       <template v-if="store.ScreenMode == Screen.TV">
         <TvView />
       </template>
@@ -34,7 +36,7 @@
 
 <script lang="ts" setup>
   import type { VSnackbarQueue } from 'vuetify/components'
-  import { defineAsyncComponent, markRaw, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
+  import { defineAsyncComponent, markRaw, onMounted, onUnmounted, ref, watch } from 'vue'
   import { useAppStore } from '@/stores/app'
   import { Screen } from '@/stores/interfaces'
 

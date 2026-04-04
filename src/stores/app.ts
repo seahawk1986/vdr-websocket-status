@@ -1,6 +1,7 @@
 // Utilities
 import { defineStore } from 'pinia'
 import { computed, ref, type Ref } from 'vue'
+import { consoleError } from 'vuetify/lib/util/console.mjs'
 import {
   type epgEvent,
   type InitialData,
@@ -26,6 +27,8 @@ export const useAppStore = defineStore('app', () => {
   const hasLogos = ref(false)
   const params = new URLSearchParams(document.location.search)
   const userSuppliedPort = params.get('port')
+  const userSuppliedNoOsd = params.get('no_osd')
+  const showOsd = (userSuppliedNoOsd === null)
   const showEndTime = params.has('show_end_time')
   const userSuppliedTheme = params.get('theme')
   const userSuppliedScrollspeed = params.get('scrollspeed')
@@ -287,6 +290,7 @@ export const useAppStore = defineStore('app', () => {
     currentChannelName,
     currentChannelNumber,
     showEndTime,
+    showOsd,
     userSuppliedTheme,
     scrollSpeed,
     replayName,
