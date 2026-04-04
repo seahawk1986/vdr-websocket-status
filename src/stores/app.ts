@@ -1,7 +1,6 @@
 // Utilities
 import { defineStore } from 'pinia'
 import { computed, ref, type Ref } from 'vue'
-import { consoleError } from 'vuetify/lib/util/console.mjs'
 import {
   type epgEvent,
   type InitialData,
