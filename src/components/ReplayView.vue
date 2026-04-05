@@ -6,7 +6,7 @@
     <v-card-item class="flex-shrink-0">
       <template #title>
         <div class="d-flex w-100 flex-shrink-0" style="min-width: 0;">
-          <v-sheet class="pa-2 bg-transparent  flex-grow-1" style="min-width: 0;">
+          <v-sheet class="pa-2 bg-transparent align-center flex-grow-1" style="min-width: 0;">
             <MarqueeText :content="store.replayName">
               {{ store.replayName }}
             </MarqueeText>
@@ -24,14 +24,14 @@
             <div class="d-flex align-center">
               <div>{{ elapsedTime }}</div>
               <v-divider
-                class="align-center"
+                class="align-self-center"
                 color="primary"
                 gradient
                 opacity=".7"
                 thickness="12"
                 variant="dotted"
               />
-              <div :style="{ fontSize: 'clamp(3rem, 5vw, 7rem)' }">
+              <div :style="{ fontSize: 'clamp(3rem, 5vw, 7rem) !important' }">
                 <v-icon :icon="replayIcon" />
               </div>
               <v-divider
