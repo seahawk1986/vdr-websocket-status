@@ -22,7 +22,6 @@ import WebSocketClient from '@/websocket'
 export const useAppStore = defineStore('app', () => {
   const osdStore = useOsdStore()
 
-  const defaultPort = 6742
   const hasLogos = ref(false)
   const params = new URLSearchParams(document.location.search)
   const userSuppliedPort = params.get('port')
@@ -33,12 +32,13 @@ export const useAppStore = defineStore('app', () => {
   const userSuppliedScrollspeed = params.get('scrollspeed')
   const scrollSpeed: number = Math.min(Math.max((Number(userSuppliedScrollspeed) || 50), 10), 100)
 
-  const port = computed(() => {
-    return userSuppliedPort && userSuppliedPort.length > 0 ? userSuppliedPort : defaultPort
-  })
   const baseUrl = computed(() => {
-    const host = window.location.hostname
-    return `${host}:${port.value}`
+    if (userSuppliedPort) {
+      const host = window.location.hostname
+      return `${host}:${userSuppliedPort}`
+    } else {
+      return window.location.host
+    }
   })
   const ScreenMode = ref(Screen.NotConnected)
   const currentChannelNumber: Ref<number | null> = ref(null)
