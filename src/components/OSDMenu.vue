@@ -12,54 +12,43 @@
         <v-spacer />
       </v-toolbar>
 
-      <v-card-text v-if="osdStore.osd.mode === 'list'" ref="scrollContainer" class="pa-0 flex-grow-1 overflow-y-auto">
-        <div class="d-flex flex-column" style="height: 100%; min-height: 0;">
-
+      <v-card-text
+        v-if="osdStore.osd.mode === 'list'"
+        class="pa-0 flex-grow-1 d-flex flex-column justify-center overflow-hidden"
+      >
+        <!-- Breite auf 100% zwingen -->
+        <div
+          class="osd-fixed-wrapper w-100"
+          :style="{ height: (itemHeightPx * VISIBLE_COUNT) + 'px' }"
+        >
           <v-virtual-scroll
             ref="virtualScroll"
-            bg-color="background"
-            class="osd-list"
-            density="compact"
+            class="w-100"
+            :height="itemHeightPx * VISIBLE_COUNT"
+            :item-height="itemHeightPx"
             :items="osdStore.osd.items"
           >
             <template #default="{ item, index }">
               <v-list-item
-                :id="osdStore.osd.index === index ? 'active-osd-item' : undefined"
                 :key="index"
                 :active="osdStore.osd.index === index"
-                active-class="v-list-item--active-solid"
-                class="text-mono"
-                color="blue"
-                :data-index="index"
-                :disabled="!item.selectable"
+                class="osd-item pa-0"
               >
-                <!-- <template #title>
-                  <div :class="osdStore.osd.index === index ? 'font-weight-bold text-white' : 'text-white'">
-                    {{ item.value }}
-                  </div>
-                </template> -->
-                <template #title>
-                  <div
-                    :class="[
-                      'd-flex',
-                      osdStore.osd.index === index ? 'font-weight-bold text-white' : 'text-white'
-                    ]"
-                  >
-                    <!-- Wir splitten den Text am Tabulator-Zeichen -->
-                    <span
-                      v-for="(part, pIndex) in item.value.split('\t')"
-                      :key="pIndex"
-                      :class="['osd-column', `col-${pIndex}`]"
-                    >
-                      {{ part }}
-                    </span>
-                  </div>
-                </template>
+                <div
+                  class="osd-text-wrap text-white w-100"
+                  :style="{
+                    fontSize: dynamicFontSize,
+                    '--col-count': item.value.split('\t').length
+                  }"
+                >
+                  <span v-for="(part, pIndex) in item.value.split('\t')" :key="pIndex" :class="['osd-column', `col-${pIndex}`]">
+                    {{ part }}
+                  </span>
+                </div>
               </v-list-item>
             </template>
           </v-virtual-scroll>
         </div>
-
       </v-card-text>
 
       <v-card-text
@@ -90,9 +79,9 @@
           <v-col v-for="(colorName) in colorKeys" :key="colorName" class="px-1">
             <v-btn
               block
-              class="text-caption font-weight-bold"
+              class="text-caption black--text font-weight-bold"
               :color="colorName"
-              size="small"
+              size="large"
               variant="flat"
             >
               {{ osdStore.osd.keys[colorName] }}
@@ -105,13 +94,12 @@
 </template>
 
 <script setup>
-  import { computed, nextTick, onMounted, ref, watch } from 'vue'
+  import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue' // onUnmounted fehlte oben!
   import { useAppStore } from '@/stores/app'
   import { useOsdStore } from '@/stores/osd'
 
   const appStore = useAppStore()
   const osdStore = useOsdStore()
-  const scrollContainer = ref(null) // OSD list scroll
   const virtualScroll = ref(null)
 
   const containerRef = ref(null)
@@ -121,18 +109,22 @@
 
   const colorKeys = ['red', 'green', 'yellow', 'blue']
 
-  // For the OsdItemText elements
+  const VISIBLE_COUNT = 12
+  const OFFSET = 5
+  const itemHeightPx = ref(50)
+
+  function updateLayout () {
+    const available = window.innerHeight * 0.8
+    itemHeightPx.value = Math.max(Math.floor(available / VISIBLE_COUNT), 30)
+  }
+
   async function checkOverflow () {
     await nextTick()
-    // Nutze $el bei Vuetify-Komponenten (v-card-text)
     const container = containerRef.value?.$el || containerRef.value
     const content = contentRef.value
-
     if (container && content) {
       const containerH = container.clientHeight
       const contentH = content.scrollHeight
-
-      // Nur wenn der Inhalt wirklich größer als der Platz ist (+ Puffer)
       if (contentH > containerH + 2) {
         contentHeight.value = contentH
         isOverflowing.value = true
@@ -142,18 +134,37 @@
     }
   }
 
+  onMounted(() => {
+    updateLayout()
+    window.addEventListener('resize', updateLayout)
+    window.addEventListener('resize', checkOverflow)
+  })
+
+  onUnmounted(() => {
+    window.removeEventListener('resize', updateLayout)
+    window.removeEventListener('resize', checkOverflow)
+  })
+
+  watch(() => osdStore.osd.index, newIndex => {
+    if (newIndex !== undefined && newIndex >= 0 && virtualScroll.value) {
+      const targetIndex = Math.max(0, newIndex - OFFSET)
+      virtualScroll.value.scrollToIndex(targetIndex)
+    }
+  })
+
+  const dynamicFontSize = computed(() => {
+    // 60% der Zeilenhöhe als Schriftgröße
+    return `${Math.floor(itemHeightPx.value * 0.75)}px`
+  })
+
   watch(
     () => [osdStore.osd.content, osdStore.visible, osdStore.osd.mode],
     async ([content, visible, mode]) => {
       if (visible && mode === 'text') {
-        // 1. Erstmal alles zurücksetzen, um die Animation zu stoppen
         isOverflowing.value = false
         contentHeight.value = 0
-
         if (content) {
-          // 2. Warten, bis Vue den neuen Text in das DOM gezeichnet hat
           await nextTick()
-          // 3. Jetzt erst messen
           checkOverflow()
         }
       }
@@ -161,94 +172,158 @@
     { immediate: true },
   )
 
-  onMounted(() => {
-    window.addEventListener('resize', checkOverflow)
-  })
-
-  // compute the animation distance dynamically
   const marqueeStyle = computed(() => {
     if (!isOverflowing.value) {
-      return {
-        display: 'block',
-        textAlign: 'left',
-        width: '100%',
-        whiteSpace: 'pre-line',
-      }
+      return { display: 'block', textAlign: 'left', width: '100%', whiteSpace: 'pre-line' }
     }
-
     const speedFactor = appStore.scollSpeed
     const duration = (contentHeight.value * 2) / speedFactor
-
     return {
       '--content-height': `${contentHeight.value}px`,
       'animation-duration': `${duration}s`,
-      'animation-delay': '1s', // wait for 1 seconds before scrolling
-      'animation-fill-mode': 'both', // Wichtig, damit der Text am Anfang stehen bleibt
+      'animation-delay': '1s',
+      'animation-fill-mode': 'both',
       'white-space': 'pre-line',
       'text-align': 'left',
       'width': '100%',
     }
   })
-
-  watch(() => osdStore.osd.index, newIndex => {
-    if (newIndex !== undefined && newIndex >= 0) {
-      // soft scrolling
-      virtualScroll.value?.scrollToIndex(newIndex)
-    }
-  })
-
-  const ITEM_HEIGHT = 40 // Feste Höhe bei density="compact"
-
-  watch(() => osdStore.osd.index, newIndex => {
-    if (newIndex !== undefined && newIndex >= 0 && virtualScroll.value) {
-      // 1. Hole die aktuelle Höhe des v-virtual-scroll Containers ($el)
-      const containerHeight = virtualScroll.value.$el.clientHeight
-
-      if (containerHeight > 0) {
-        // 2. Berechne, wie viele Items reinpassen
-        const visibleItemsCount = Math.floor(containerHeight / ITEM_HEIGHT)
-
-        // 3. Berechne den Offset für die Mitte
-        const centerOffset = Math.floor(visibleItemsCount / 2)
-
-        // 4. Ziel-Index nach oben schieben, damit Fokus mittig landet
-        const targetIndex = Math.max(0, newIndex - centerOffset)
-
-        virtualScroll.value.scrollToIndex(targetIndex)
-      } else {
-        // Fallback, falls die Höhe (noch) 0 ist (z.B. beim ersten Öffnen)
-        virtualScroll.value.scrollToIndex(newIndex)
-      }
-    }
-  })
 </script>
 
 <style scoped>
-.text-mono {
-  font-family: 'Roboto Mono', 'Courier New', monospace !important;
-}
-.osd-list {
-  overflow-x: hidden;
-}
-.v-list-item-title {
-  white-space: nowrap !important;
-  font-size: 0.95rem;
-}
-/* Optional: Fokus-Balken etwas deutlicher machen */
-.v-list-item--active {
-  background-color: rgba(255, 255, 0, 0.1) !important;
-  color: rgba(255, 255, 255, 0, 1) !important;
+.osd-item :deep(.v-list-item__overlay) {
+  display: none !important;
 }
 
-  .description-text {
+.osd-item.v-list-item--active {
+  background-color: #2196F3 !important;
+  opacity: 1 !important;
+}
 
-  font-size: clamp(1.2rem, 3vw + 0.5rem, 2.5rem) !important;
-  white-space: pre-line; /* allow line breaks */
-  }
+.osd-item :deep(.v-list-item__content) {
+  padding: 0 !important;
+  margin: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important; /* Vertikale Zentrierung */
+}
 
-/* Container für den Text-Modus */
+.osd-item {
+  width: 100% !important; /* Markierung geht über die volle Breite */
+  height: calc(v-bind(itemHeightPx) * 1px) !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 10 !important; /* OSD-typischer Seitenabstand */
+  box-sizing: border-box;
+}
+
+.osd-fixed-wrapper {
+  width: 100% !important; /* Volle Breite erzwingen */
+  height: calc(v-bind(itemHeightPx) * 10 * 1px) !important;
+  overflow: hidden;
+}
+
+/* Fokus-Balken bündig machen */
+.osd-item.v-list-item--active {
+  background-color: #2196F3 !important;
+  opacity: 1 !important;
+}
+
+.osd-text-wrap {
+  display: grid !important;
+  /* Dynamische Spalten: Alle Spalten außer der letzten sind 'min-content' (so breit wie nötig),
+     die letzte Spalte ist immer '1fr' (nimmt den Rest). */
+  grid-template-columns: repeat(calc(var(--col-count, 1) - 1), min-content) 1fr;
+
+  align-items: center;
+  gap: 1.5rem; /* Sauberer Abstand zwischen den Spalten */
+  width: 100%;
+  padding: 24px 24px;
+  font-family: 'Roboto Mono', monospace !important;
+}
+
+/* Spalten-Layout stabilisieren */
+
+.osd-column {
+  white-space: nowrap; /* WICHTIG: Erhält die VDR-eigenen Leerzeichen */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3; /* enough space around font */
+  padding-left: 1ch;
+}
+/* Spezielle Ausrichtung für EPG-Daten (4 Spalten) */
+.osd-text-wrap[style*="--col-count: 4"] .col-0,
+.osd-text-wrap[style*="--col-count: 4"] .col-1 {
+  min-width: 5ch; /* Hält Datum und Zeit stabil untereinander */
+}
+
+.osd-text-wrap {
+  display: grid !important;
+  /* Dynamisches Grid:
+     Alle Spalten vor der letzten sind 'min-content' (so schmal wie möglich),
+     die allerletzte Spalte ist immer '1fr' (füllt den Rest aus). */
+  grid-template-columns: repeat(calc(var(--col-count, 1) - 1), min-content) 1fr;
+
+  align-items: center;
+  gap: 0 1ch; /* Sauberer Abstand zwischen den Spalten */
+  width: 100%;
+  padding: 0;
+  font-family: 'Roboto Mono', monospace !important;
+}
+
+.osd-column {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Zeigt '...' nur am Ende der Zeile an, wenn der Platz ausgeht */
+}
+
+/* 1. Spalte: Datum (z.B. 'So. 05') */
+.col-0 {
+  grid-column: 1;
+  text-align: right;
+  min-width: 3ch;
+}
+
+/* 2. Spalte: Uhrzeit (z.B. '20:15') */
+.col-1 {
+  grid-column: 2;
+  text-align: left;
+}
+
+/* 3. Spalte: Marker (z.B. '*' oder 'V') */
+.col-2 {
+  grid-column: 3;
+  text-align: center; /* Der Marker steht mittig in seinen 3ch */
+  min-width: 6ch;
+}
+
+/* 4. Spalte: Titel */
+.col-3 {
+  grid-column: 4;
+  padding-left: 0.5ch; /* Direkt nach dem Marker beginnen */
+}
+
+/* Spezial-Regel für 2-spaltige Menüs (Kanalliste), damit diese nicht zerschießen */
+.osd-text-wrap[style*="--col-count: 2"] {
+  grid-template-columns: min-content 1fr;
+  gap: 2ch;
+}
+.osd-text-wrap[style*="--col-count: 2"] .col-0 {
+  min-width: 4ch;
+  text-align: right;
+  padding-right: 0;
+}
+
+/* 3. Aktives Element (Fokus) */
+.v-list-item--active-solid {
+  background-color: #2196F3 !important;
+  opacity: 1 !important;
+  color: white !important;
+}
+
+/* 4. Marquee / Text-Modus */
 .overflow-hidden {
-  position: relative; /* Wichtig für absolute Positionierung des Marquees */
+  position: relative;
   overflow: hidden;
 }
 
@@ -257,48 +332,17 @@
   top: 0;
   left: 0;
   width: 100%;
-  /* Hier kein festes animation-delay, da wir es dynamisch via JS setzen */
-  animation-name: scrollContinuous;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  text-align: left !important;
+  animation: scrollContinuous linear infinite;
 }
 
 @keyframes scrollContinuous {
-  /* Während des Delays bleibt die Animation bei 0% stehen */
-  0%, 10% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-50%);
-  }
+  0%, 10% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
 }
 
-@keyframes scrollDown {
-  0% { transform: translateY(100%); }
-  100% { transform: translateY(calc(-1 * var(--content-height))); }
+/* Hilfsklassen */
+.description-text {
+  font-size: clamp(1.2rem, 3vw + 0.5rem, 2.5rem) !important;
+  white-space: pre-line;
 }
-
-/* Verhindert Flackern vor der Berechnung */
-div:not(.marquee-active) {
-  max-width: 100%;
-}
-
-.v-list-item--active-solid {
-  background-color: #2196F3 !important; /* Dein kräftiges Blau */
-  opacity: 1 !important;
-}
-
-.osd-column {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding-right: 16px; /* Abstand zwischen Spalten */
-}
-
-/* Optionale feste Breiten für typische VDR-Listen (Kanalnummer, Name, Zeit) */
-.col-0 { flex-grow: 0; }  /* Kanalnummer */
-.col-1 { flex-grow: 0; }  /* Sendername */
-.col-2 { flex-grow: 0; }  /* Uhrzeit */
-.col-4 { flex-grow: 2; }  /* Sendungstitel */
 </style>
