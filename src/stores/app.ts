@@ -8,9 +8,11 @@ import {
   type OSDMessage,
   type Position,
   type Recording,
+  type RecordingData,
   type ReplayDisplay,
   Screen,
   type SnackbarMessage,
+  type Timer,
   type TimerData,
   type TimerStatusData,
   type TVDisplay,
@@ -60,6 +62,9 @@ export const useAppStore = defineStore('app', () => {
   const replaySpeed = ref(0)
   const is_recording = ref(false)
 
+  const recordings = ref<Recording[]>([])
+  const timers = ref<Timer[]>([])
+
   const channelIsEncrypted = ref(false)
   const channelHasTeletext = ref(false)
   const channelHasDolby = ref(false)
@@ -68,6 +73,11 @@ export const useAppStore = defineStore('app', () => {
 
   const currentEvent: Ref<null | epgEvent> = ref(null)
   const nextEvent: Ref<null | epgEvent> = ref(null)
+
+  const nNewRecordings = computed(() => {
+    const count = recordings.value.reduce((acc, r) => r.is_new ? acc + 1 : acc, 0)
+    return count
+  })
 
   const currentStartDate = computed(() => {
     if (currentEvent.value?.start) {
@@ -147,6 +157,9 @@ export const useAppStore = defineStore('app', () => {
     replaying.value = true
     replaying.value = data.status === 'started'
     replayRecording.value = data.recording ?? null
+    if (data.recordings) {
+      recordings.value = data.recordings
+    }
   }
 
   const isActive = ref(false) // this is set to true after we receive the first message and to false on a close
@@ -199,6 +212,8 @@ export const useAppStore = defineStore('app', () => {
                 } else if (initialdata.current_display.type === 'replay') {
                   processReplayData(initialdata.current_display as ReplayDisplay)
                 }
+                timers.value = initialdata.timers
+                recordings.value = initialdata.recordings
               }
               break
             }
@@ -222,6 +237,7 @@ export const useAppStore = defineStore('app', () => {
             case 'timer': {
               const timerData = data as TimerData
               console.log('got timer data', timerData)
+              timers.value = timerData.timers
               break
             }
             case 'timer_status_update': {
@@ -248,6 +264,11 @@ export const useAppStore = defineStore('app', () => {
                 snackBarMessages.value = []
                 lastOsdClear.value = new Date()
               }
+              break
+            }
+            case 'recording': {
+              const recordingData = data as RecordingData
+              recordings.value = recordingData.recordings
               break
             }
             case 'volume': {
@@ -302,6 +323,9 @@ export const useAppStore = defineStore('app', () => {
     replayPosition,
     replayPositionTotal,
     replayProgress,
+    recordings,
+    nNewRecordings,
+    timers,
     volume,
     replaying,
     replayDirectionForward,

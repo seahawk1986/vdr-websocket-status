@@ -98,6 +98,20 @@ export interface Recording {
   duration: number
   status: string
   type: string
+  is_edited: boolean
+  is_new: boolean
+  sizeMB: number
+  components: any
+  fps: number
+}
+
+export interface RecordingData {
+  recordings: Recording[]
+  type: string
+  name: string
+  filename: string
+  recording_active: boolean
+  tuner: number
 }
 
 export interface ReplayDisplay {
@@ -109,6 +123,17 @@ export interface ReplayDisplay {
   play: boolean
   speed: number
   type: string
+  recordings?: Recording[]
+}
+
+export interface Timer {
+  raw: string
+  title?: string
+  channel_id?: string
+  start: number
+  stop: number
+  index: number
+  aux: string
 }
 
 export interface InitialData {
@@ -119,6 +144,8 @@ export interface InitialData {
   replaying: boolean
   volume: number
   type: string
+  recordings: Recording[]
+  timers: Timer[]
 }
 
 export interface TimerData {
@@ -128,6 +155,7 @@ export interface TimerData {
   timer_change: boolean
   timer_channel_id: string
   timer_channel_name: string
+  timers: Timer[]
 }
 
 export interface TimerStatusData {

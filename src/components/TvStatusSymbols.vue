@@ -13,7 +13,7 @@
     <v-icon
       :class="store.is_recording ? 'recording-pulse' : ''"
       :color="store.is_recording ? 'red' : 'grey-darken-2'"
-      icon="mdi-record"
+      icon="mdi-record-rec"
       size="x-large"
     />
   </div>

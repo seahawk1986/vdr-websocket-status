@@ -119,9 +119,15 @@
       </v-card-text>
     </div>
     <Teleport defer to="#footer-actions">
-      <v-sheet class="d-flex justify-center  align-center bg-background pa-4 flex-grow-1 w-100">
-        <div :style="{ fontSize: 'clamp(3rem, 6vw, 8rem)' }">
+      <v-sheet class="d-flex justify-space-around align-center bg-background pa-4 flex-grow-1 w-100 opacity-80"  :style="{ fontSize: 'clamp(3rem, 6vw, 8rem)' }">
+        <div class="d-flex align-center">
+          {{ store.timers.length }} <v-icon icon="mdi-timer" size="small" />
+        </div>
+        <div>
           <date-time format="fullDateTime24h" />
+        </div>
+        <div class="d-flex align-center">
+          {{ store.nNewRecordings }} <v-icon icon="mdi-movie-star" size="small" />
         </div>
       </v-sheet>
     </Teleport>
