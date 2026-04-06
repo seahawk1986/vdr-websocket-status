@@ -54,21 +54,20 @@
       <v-card-text
         v-else
         ref="containerRef"
-        class="overflow-hidden d-flex align-start justify-start mx-4"
+        class="overflow-hidden mx-4 pa-0"
         flat
-        height="100%"
-        style="font-size: clamp(1.2rem, 3vw + 0.5rem, 2.5rem) !important;"
+        style="height: 100%;"
       >
         <div
           ref="contentRef"
-          :class="['text-left', { 'marquee-active': isOverflowing }]"
+          :class="['description-text', { 'marquee-active': isOverflowing }]"
           :style="marqueeStyle"
         >
           {{ osdStore.osd.content }}
-          <!-- Zweiter Durchlauf -->
+          <!-- Loop-Inhalt -->
           <template v-if="isOverflowing">
             <v-divider class="my-4" />
-            <div class="pa-0">{{ osdStore.osd.content }}</div>
+            <div>{{ osdStore.osd.content }}</div>
           </template>
         </div>
       </v-card-text>
@@ -122,10 +121,17 @@
     await nextTick()
     const container = containerRef.value?.$el || containerRef.value
     const content = contentRef.value
+
     if (container && content) {
-      const containerH = container.clientHeight
+      // OffsetHeight ist die physikalische Höhe inkl. Padding
+      const containerH = container.offsetHeight
+      // scrollHeight ist die tatsächlich benötigte Höhe des Textes
       const contentH = content.scrollHeight
-      if (contentH > containerH + 2) {
+
+      // Wir entfernen den "+ 2" Puffer oder setzen ihn auf 1px
+      // Wenn der Content auch nur 1px größer ist, brauchen wir das Marquee
+      if (contentH > containerH + 1) {
+        // WICHTIG: Die exakte Höhe für die Animation speichern
         contentHeight.value = contentH
         isOverflowing.value = true
       } else {
@@ -134,15 +140,30 @@
     }
   }
 
+  let resizeObserver = null
   onMounted(() => {
     updateLayout()
+    checkOverflow()
+
     window.addEventListener('resize', updateLayout)
-    window.addEventListener('resize', checkOverflow)
+
+    const container = containerRef.value?.$el || containerRef.value
+    if (container) {
+      resizeObserver = new ResizeObserver(() => {
+        window.requestAnimationFrame(() => {
+          checkOverflow()
+        })
+      })
+      resizeObserver.observe(container)
+    }
   })
 
   onUnmounted(() => {
     window.removeEventListener('resize', updateLayout)
-    window.removeEventListener('resize', checkOverflow)
+
+    if (resizeObserver) {
+      resizeObserver.disconnect()
+    }
   })
 
   watch(() => osdStore.osd.index, newIndex => {
@@ -176,16 +197,17 @@
     if (!isOverflowing.value) {
       return { display: 'block', textAlign: 'left', width: '100%', whiteSpace: 'pre-line' }
     }
-    const speedFactor = appStore.scollSpeed
-    const duration = (contentHeight.value * 2) / speedFactor
+
+    const speedFactor = appStore.scollSpeed || 40
+    // Dauer = Höhe eines Blocks / Geschwindigkeit
+    const duration = contentHeight.value / speedFactor
+
     return {
-      '--content-height': `${contentHeight.value}px`,
-      'animation-duration': `${duration}s`,
-      'animation-delay': '1s',
-      'animation-fill-mode': 'both',
-      'white-space': 'pre-line',
-      'text-align': 'left',
-      'width': '100%',
+      animationDuration: `${duration}s`, // CamelCase nutzen
+      animationDelay: '1s',
+      whiteSpace: 'pre-line',
+      textAlign: 'left',
+      width: '100%',
     }
   })
 </script>
@@ -321,10 +343,12 @@
   color: white !important;
 }
 
-/* 4. Marquee / Text-Modus */
 .overflow-hidden {
-  position: relative;
-  overflow: hidden;
+  position: relative !important; /* Wichtig für absolute Positionierung des Inhalts */
+  overflow: hidden !important;
+  display: block !important;
+  height: 100% !important;
+  width: 100%;
 }
 
 .marquee-active {
@@ -332,17 +356,23 @@
   top: 0;
   left: 0;
   width: 100%;
-  animation: scrollContinuous linear infinite;
+  /* animation-duration kommt via :style aus dem JS */
+  animation-name: scrollContinuous;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
 }
 
 @keyframes scrollContinuous {
-  0%, 10% { transform: translateY(0); }
+  0%, 15% { transform: translateY(0); } /* Etwas längere Pause am Start */
   100% { transform: translateY(-50%); }
 }
 
 /* Hilfsklassen */
+
 .description-text {
   font-size: clamp(1.2rem, 3vw + 0.5rem, 2.5rem) !important;
   white-space: pre-line;
+  line-height: 1.4;
 }
+
 </style>
