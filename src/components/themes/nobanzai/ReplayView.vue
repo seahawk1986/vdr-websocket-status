@@ -1,158 +1,133 @@
 <script setup lang="ts">
 
-import { computed, type CSSProperties, nextTick, onMounted, ref, watch } from 'vue'
-import { useDate } from 'vuetify'
-import DateTime from '@/components/DateTime.vue'
-import MarqueeText from '@/components/MarqueeText.vue'
-import { useAppStore } from '@/stores/app'
+  import { computed, nextTick, onMounted, ref, watch } from 'vue'
+  import DateTime from '@/components/DateTime.vue'
+  import MarqueeText from '@/components/MarqueeText.vue'
+  import { useAppStore } from '@/stores/app'
 
-const dateFormatter = useDate()
-const store = useAppStore()
+  const store = useAppStore()
 
-const containerRef = ref<any>(null)
-const contentRef = ref<HTMLElement | null>(null)
-const isOverflowing = ref(false)
-const contentHeight = ref(0)
-const isReady = ref(false)
+  const containerRef = ref<any>(null)
+  const contentRef = ref<HTMLElement | null>(null)
+  const isOverflowing = ref(false)
+  const contentHeight = ref(0)
+  const isReady = ref(false)
 
-/**
- * Calculated style for the description marquee
- */
-const marqueeStyle = computed((): CSSProperties => {
-  if (!isOverflowing.value) {
-    return {
-      display: 'block',
-      textAlign: 'left',
-      width: '100%',
-      whiteSpace: 'pre-line',
+  /**
+   * Checks if content height exceeds container capacity
+   */
+  async function checkOverflow () {
+    await nextTick()
+    const container = containerRef.value?.$el || containerRef.value
+    const content = contentRef.value
+
+    if (container && content) {
+      const containerH = container.clientHeight
+      const contentH = content.scrollHeight
+
+      if (contentH > containerH + 2) {
+        contentHeight.value = contentH + 16
+        isOverflowing.value = true
+      } else {
+        isOverflowing.value = false
+      }
     }
   }
-  const speedFactor: number = store.scrollSpeed
-  const duration = (contentHeight.value * 2) / speedFactor
 
-  return {
-    '--content-height': `${contentHeight.value}px`,
-    'animationDuration': `${duration}s`,
-    'animationDelay': '1s',
-    'animationFillMode': 'both',
-    'whiteSpace': 'pre-line',
-    'textAlign': 'left',
-    'width': '100%',
-    'font-size': 'clamp(1.2rem, 3vw + 0.5rem, 2.5rem) !important'
-  } as CSSProperties
-})
-
-/**
- * Checks if content height exceeds container capacity
- */
-async function checkOverflow() {
-  await nextTick()
-  const container = containerRef.value?.$el || containerRef.value
-  const content = contentRef.value
-
-  if (container && content) {
-    const containerH = container.clientHeight
-    const contentH = content.scrollHeight
-
-    if (contentH > containerH + 2) {
-      contentHeight.value = contentH + 16
-      isOverflowing.value = true
-    } else {
+  watch(
+    () => store.replayRecording?.description,
+    async newContent => {
       isOverflowing.value = false
-    }
-  }
-}
+      if (newContent) {
+        await nextTick()
+        checkOverflow()
+      }
+    },
+    { immediate: true },
+  )
 
-watch(
-  () => store.replayRecording?.description,
-  async newContent => {
-    isOverflowing.value = false
-    if (newContent) {
-      await nextTick()
-      checkOverflow()
-    }
-  },
-  { immediate: true },
-)
+  onMounted(() => {
+    window.addEventListener('resize', checkOverflow)
 
-onMounted(() => {
-  window.addEventListener('resize', checkOverflow)
-
-  // Hard reset of transition state to prevent initial jump
-  requestAnimationFrame(() => {
+    // Hard reset of transition state to prevent initial jump
     requestAnimationFrame(() => {
-      isReady.value = true
+      requestAnimationFrame(() => {
+        isReady.value = true
+      })
     })
   })
-})
 
-/**
- * Formats seconds into HH:mm
- */
-function formattedDuration (duration: number) {
-  const hours = Math.floor(duration / 3600)
-  const minutes = Math.floor((duration % 3600) / 60)
-  const m = minutes.toString().padStart(2, '0')
-  return `${hours}:${m}`
-}
-
-/**
- * Determines icon based on playback state and speed
- */
-const replayIcon = computed(() => {
-  if (store.replaying) {
-    switch (store.replaySpeed) {
-      case -1: return 'mdi-play'
-      case 1: return store.replayDirectionForward ? 'mdi-chevron-right' : 'mdi-chevron-left'
-      case 2: return store.replayDirectionForward ? 'mdi-chevron-double-right' : 'mdi-chevron-double-left'
-      case 3: return store.replayDirectionForward ? 'mdi-chevron-triple-right' : 'mdi-chevron-triple-left'
-      default: return 'mdi-help'
-    }
-  } else {
-    return 'mdi-pause'
+  /**
+   * Formats seconds into HH:mm
+   */
+  function formattedDuration (duration: number) {
+    const hours = Math.floor(duration / 3600)
+    const minutes = Math.floor((duration % 3600) / 60)
+    const m = minutes.toString().padStart(2, '0')
+    return `${hours}:${m}`
   }
-})
 
-const elapsedTime = computed(() => formattedDuration(store.replayPosition))
-const remainingTime = computed(() => {
-  const remainingSeconds = store.replayPositionTotal - store.replayPosition
-  return formattedDuration(remainingSeconds)
-})
+  /**
+   * Determines icon based on playback state and speed
+   */
+  const replayIcon = computed(() => {
+    if (store.replaying) {
+      switch (store.replaySpeed) {
+        case -1: { return 'mdi-play'
+        }
+        case 1: { return store.replayDirectionForward ? 'mdi-chevron-right' : 'mdi-chevron-left'
+        }
+        case 2: { return store.replayDirectionForward ? 'mdi-chevron-double-right' : 'mdi-chevron-double-left'
+        }
+        case 3: { return store.replayDirectionForward ? 'mdi-chevron-triple-right' : 'mdi-chevron-triple-left'
+        }
+        default: { return 'mdi-help'
+        }
+      }
+    } else {
+      return 'mdi-pause'
+    }
+  })
 
-const isElapsedVisible = computed(() => store.replayProgress > 30)
+  const elapsedTime = computed(() => formattedDuration(store.replayPosition))
+  const remainingTime = computed(() => {
+    const remainingSeconds = store.replayPositionTotal - store.replayPosition
+    return formattedDuration(remainingSeconds)
+  })
 
-/**
- * Animated position for the "noodle" time indicator
- */
-const noodleStyle = computed(() => ({
-  left: `${store.replayProgress}%`,
-  top: '40px',
-  zIndex: 1,
-  transform: store.replayProgress > 10
-    ? 'translateX(-100%)'
-    : 'translateX(-50%)',
-  whiteSpace: 'nowrap'
-}))
+  const isElapsedVisible = computed(() => store.replayProgress > 30)
 
-/**
- * Adjusts arrow shift based on alignment
- */
-const arrowStyle = computed(() => ({
-  transform: store.replayProgress > 10 ? 'translateX(50%)' : 'translateX(0)'
-}))
+  /**
+   * Animated position for the "noodle" time indicator
+   */
+  const noodleStyle = computed(() => ({
+    left: `${store.replayProgress}%`,
+    top: '40px',
+    zIndex: 1,
+    transform: store.replayProgress > 10
+      ? 'translateX(-100%)'
+      : 'translateX(-50%)',
+    whiteSpace: 'nowrap',
+  }))
+
+  /**
+   * Adjusts arrow shift based on alignment
+   */
+  const arrowStyle = computed(() => ({
+    transform: store.replayProgress > 10 ? 'translateX(50%)' : 'translateX(0)',
+  }))
 </script>
-
 
 <template>
   <v-card
     class="bg-black fill-height"
     flat
-    tile
     style="position: fixed; inset: 0; overflow: hidden; font-family: sans-serif;"
+    tile
   >
-    <v-container fluid class="pa-10">
+    <v-container class="pa-10" fluid>
       <v-row no-gutters>
-        <v-col cols="12" class="d-flex flex-column">
+        <v-col class="d-flex flex-column" cols="12">
           <div
             class="font-weight-black mb-2 main-title"
             :style="{ fontSize: '12vh', lineHeight: '1.3' }"
@@ -179,10 +154,10 @@ const arrowStyle = computed(() => ({
           >
             <v-progress-linear
               v-model="store.replayProgress"
+              class="mt-2"
               color="primary"
               height="25"
               rounded
-              class="mt-2"
             />
 
             <transition name="fade">
@@ -204,10 +179,10 @@ const arrowStyle = computed(() => ({
               :style="noodleStyle"
             >
               <v-icon
-                icon="mdi-menu-up"
-                color="primary"
-                size="8vh"
                 class="mt-0"
+                color="primary"
+                icon="mdi-menu-up"
+                size="8vh"
                 :style="arrowStyle"
               />
 
@@ -226,8 +201,8 @@ const arrowStyle = computed(() => ({
 
     <Teleport defer to="#footer-actions">
       <v-row
-        no-gutters
         class="px-6 pb-2 align-center bg-background"
+        no-gutters
         style="height: 16vh; position: absolute; bottom: 0; width: 100%; z-index: 2;"
       >
         <v-col cols="6">
@@ -235,7 +210,7 @@ const arrowStyle = computed(() => ({
             <v-icon :icon="replayIcon" />
           </div>
         </v-col>
-        <v-col cols="6" class="d-flex justify-end pr-0">
+        <v-col class="d-flex justify-end pr-0" cols="6">
           <div class="clock-font font-weight-black text-uppercase text-right">
             <date-time format="fullTime24h" />
           </div>
@@ -243,7 +218,7 @@ const arrowStyle = computed(() => ({
       </v-row>
     </Teleport>
 
-    <div id="footer-actions"></div>
+    <div id="footer-actions" />
   </v-card>
 </template>
 
