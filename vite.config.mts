@@ -50,8 +50,8 @@ export default defineConfig({
             console.log(`🗑️  Asset entfernt: ${fileName}`)
           }
         }
-      }
-    }
+      },
+    },
   ],
   define: { 'process.env': {} },
   resolve: {
