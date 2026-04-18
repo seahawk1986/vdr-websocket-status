@@ -17,6 +17,7 @@
     return null
   })
 
+
   const followingStartDate = computed(() => {
     if (store.nextEvent?.start) {
       const d = new Date(store.nextEvent.start * 1000)
@@ -24,6 +25,7 @@
     }
     return null
   })
+
 
 </script>
 

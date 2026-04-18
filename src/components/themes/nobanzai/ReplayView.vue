@@ -1,4 +1,13 @@
 <script setup lang="ts">
+/**
+ * # ReplayView.vue
+ * # Progress tracking and playback information overlay
+ * # Created by Gemini
+ * # Created on 2026-04-15
+ * #
+ # #
+
+ */
 
   import { computed, nextTick, onMounted, ref, watch } from 'vue'
   import DateTime from '@/components/DateTime.vue'
@@ -11,7 +20,20 @@
   const contentRef = ref<HTMLElement | null>(null)
   const isOverflowing = ref(false)
   const contentHeight = ref(0)
-  const isReady = ref(false)
+
+  /**
+   * isInitialized: Controls the presence of the noodle in the DOM
+   * canAnimate: Switches on CSS transitions after the initial paint
+   */
+  const isInitialized = ref(false)
+  const canAnimate = ref(false)
+
+  /**
+   * Ensures we only start rendering when actual data is available
+   */
+  const hasValidData = computed(() => {
+    return store.replayPositionTotal > 0 && store.replayProgress !== null
+  })
 
   /**
    * Checks if content height exceeds container capacity
@@ -34,42 +56,31 @@
     }
   }
 
-  watch(
-    () => store.replayRecording?.description,
-    async newContent => {
-      isOverflowing.value = false
-      if (newContent) {
-        await nextTick()
-        checkOverflow()
-      }
-    },
-    { immediate: true },
-  )
-
   onMounted(() => {
     window.addEventListener('resize', checkOverflow)
-
-    // Hard reset of transition state to prevent initial jump
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        isReady.value = true
-      })
+    const initNoodle = (valid: boolean) => {
+      if (valid && !isInitialized.value) {
+        isInitialized.value = true
+        requestAnimationFrame(() => {
+          canAnimate.value = true
+        })
+        if (unwatch) unwatch()
+      }
+    }
+    const unwatch = watch(hasValidData, valid => {
+      initNoodle(valid)
     })
+    initNoodle(hasValidData.value)
   })
 
-  /**
-   * Formats seconds into HH:mm
-   */
   function formattedDuration (duration: number) {
+    if (!duration || duration < 0) return '0:00'
     const hours = Math.floor(duration / 3600)
     const minutes = Math.floor((duration % 3600) / 60)
     const m = minutes.toString().padStart(2, '0')
     return `${hours}:${m}`
   }
 
-  /**
-   * Determines icon based on playback state and speed
-   */
   const replayIcon = computed(() => {
     if (store.replaying) {
       switch (store.replaySpeed) {
@@ -97,9 +108,6 @@
 
   const isElapsedVisible = computed(() => store.replayProgress > 30)
 
-  /**
-   * Animated position for the "noodle" time indicator
-   */
   const noodleStyle = computed(() => ({
     left: `${store.replayProgress}%`,
     top: '40px',
@@ -110,9 +118,6 @@
     whiteSpace: 'nowrap',
   }))
 
-  /**
-   * Adjusts arrow shift based on alignment
-   */
   const arrowStyle = computed(() => ({
     transform: store.replayProgress > 10 ? 'translateX(50%)' : 'translateX(0)',
   }))
@@ -148,8 +153,9 @@
           </div>
 
           <div
+            v-if="hasValidData"
             class="mt-4 mb-22"
-            :class="{ 'no-transition': !isReady }"
+            :class="{ 'is-ready': canAnimate }"
             style="position: relative; width: 100%;"
           >
             <v-progress-linear
@@ -158,22 +164,24 @@
               color="primary"
               height="25"
               rounded
+              style="transition: none;"
             />
 
             <transition name="fade">
               <div
-                v-if="isElapsedVisible"
+                v-if="isElapsedVisible && isInitialized"
                 class="font-weight-black epg-font-main position-absolute"
                 style="left: 0; top: 40px; white-space: nowrap;"
                 :style="{ fontSize: '9vh', lineHeight: '1' }"
               >
                 <div style="padding-top: 6vh;">
-                  {{ elapsedTime || '00:00' }}
+                  {{ elapsedTime }}
                 </div>
               </div>
             </transition>
 
             <div
+              v-if="isInitialized"
               class="position-absolute d-flex flex-column time-noodle"
               :class="store.replayProgress > 10 ? 'align-end' : 'align-center'"
               :style="noodleStyle"
@@ -191,7 +199,7 @@
                 :class="store.replayProgress > 10 ? 'text-right' : 'text-center'"
                 :style="{ fontSize: '9vh', marginTop: '-2vh', lineHeight: '1' }"
               >
-                -{{ remainingTime || '00:00' }}
+                -{{ remainingTime }}
               </span>
             </div>
           </div>
@@ -223,16 +231,22 @@
 </template>
 
 <style scoped>
-.time-noodle {
-  pointer-events: none;
-  /* Apply transitions globally to the noodle */
-  transition: left 0.3s ease-out, transform 0.3s ease-out;
+/* Disable animations by default to avoid the initial jump from 0 */
+.time-noodle,
+.v-icon {
+  transition: none;
 }
 
-/* Disable transitions while loading */
-.no-transition .time-noodle,
-.no-transition .v-icon {
-  transition: none !important;
+/* Enable smooth transitions only after the component is ready and placed */
+.is-ready .time-noodle {
+  transition:
+    left 0.3s ease-out,
+    transform 0.3s ease-out,
+    opacity 0.2s ease-in !important;
+}
+
+.is-ready .v-icon {
+  transition: transform 0.3s ease-out !important;
 }
 
 .fade-enter-active,
@@ -249,11 +263,5 @@
 .sub-title :deep(*) {
   font-size: inherit !important;
   line-height: inherit !important;
-}
-
-.description-text :deep(*) {
-  font-size: clamp(1.2rem, 3vw + 0.5rem, 2.5rem) !important;
-  opacity: 0.9;
-  white-space: pre-line;
 }
 </style>
