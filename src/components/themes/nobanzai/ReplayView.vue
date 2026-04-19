@@ -32,7 +32,7 @@
    * Ensures we only start rendering when actual data is available
    */
   const hasValidData = computed(() => {
-    return store.replayPositionTotal > 0 && store.replayProgress !== null
+    return store.replayPositionTotal > 0 && store.replayProgress > 0
   })
 
   /**
