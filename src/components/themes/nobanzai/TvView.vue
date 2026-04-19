@@ -29,7 +29,6 @@
 
 </script>
 
-<!-- nobanzai template begin { -->
 <template>
   <v-card
     class="elevation-0 bg-black pa-0 ma-0"
@@ -155,4 +154,3 @@
   height: auto;
 }
 </style>
-<!-- nobanzai template end } -->
