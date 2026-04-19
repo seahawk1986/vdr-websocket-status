@@ -156,8 +156,10 @@ export const useAppStore = defineStore('app', () => {
     replayShortText.value = data.recording?.subtitle ?? ''
     replaying.value = data.status === 'started'
     replayRecording.value = data.recording ?? null
-    replayPosition.value = data.status === 'stopped' ? 0 : data.current
-    replayPositionTotal.value = data.status === 'stopped' ? 0 : data.total
+    if (data.status == 'stopped') {
+      replayPosition.value = 0
+      replayPositionTotal.value = 0
+    }
 
     if (data.recordings) {
       recordings.value = data.recordings
