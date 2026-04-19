@@ -90,12 +90,10 @@
 
 <script setup lang="ts">
   import { computed, type CSSProperties, nextTick, onMounted, ref, watch } from 'vue'
-  import { useDate } from 'vuetify'
   import DateTime from '@/components/DateTime.vue'
   import MarqueeText from '@/components/MarqueeText.vue'
   import { useAppStore } from '@/stores/app'
 
-  const dateFormatter = useDate()
   const store = useAppStore()
 
   const containerRef = ref<any>(null)
@@ -123,7 +121,7 @@
       'whiteSpace': 'pre-line',
       'textAlign': 'left',
       'width': '100%',
-      'font-size': 'clamp(1.2rem, 3vw + 0.5rem, 2.5rem) !important'
+      'font-size': 'clamp(1.2rem, 3vw + 0.5rem, 2.5rem) !important',
     } as CSSProperties // "as CSSProperties" hilft bei den Custom-Properties (--content-height)
   })
 
@@ -200,20 +198,6 @@
     }
   })
 
-  const startTime = computed(() => {
-    if (store.replayRecording) {
-      const startDate = new Date(store.replayRecording?.start * 1000)
-      return dateFormatter.format(startDate, 'fullTime24h')
-    } else return null
-  })
-
-  const endTime = computed(() => {
-    if (store.replayRecording) {
-      const endDate = new Date((store.replayRecording.start + store.replayRecording.duration) * 1000)
-      return dateFormatter.format(endDate, 'fullTime24h')
-    } else return null
-  })
-
   const elapsedTime = computed(() => {
     return formattedDuration(store.replayPosition)
   })
@@ -221,11 +205,6 @@
   const remainingTime = computed(() => {
     const remainingSeconds = store.replayPositionTotal - store.replayPosition
     return formattedDuration(remainingSeconds)
-  })
-  const endWallTime = computed(() => {
-    const remainingSeconds = store.replayPositionTotal - store.replayPosition
-    const d = new Date(Date.now() + remainingSeconds * 1000)
-    return dateFormatter.format(d, 'fullTime24h')
   })
 </script>
 

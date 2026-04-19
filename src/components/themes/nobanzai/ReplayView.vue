@@ -1,14 +1,4 @@
 <script setup lang="ts">
-/**
- * # ReplayView.vue
- * # Progress tracking and playback information overlay
- * # Created by Gemini
- * # Created on 2026-04-15
- * #
- # #
-
- */
-
   import { computed, nextTick, onMounted, ref, watch } from 'vue'
   import DateTime from '@/components/DateTime.vue'
   import MarqueeText from '@/components/MarqueeText.vue'
