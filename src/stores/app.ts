@@ -154,9 +154,11 @@ export const useAppStore = defineStore('app', () => {
     ScreenMode.value = data.status === 'started' ? Screen.Replay : Screen.TV
     replayName.value = data.recording?.title ?? data.name
     replayShortText.value = data.recording?.subtitle ?? ''
-    replaying.value = true
     replaying.value = data.status === 'started'
     replayRecording.value = data.recording ?? null
+    replayPosition.value = data.status === 'stopped' ? 0 : data.current
+    replayPositionTotal.value = data.status === 'stopped' ? 0 : data.total
+
     if (data.recordings) {
       recordings.value = data.recordings
     }
