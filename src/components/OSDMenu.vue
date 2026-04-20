@@ -251,19 +251,6 @@
   opacity: 1 !important;
 }
 
-/* .osd-text-wrap {
-  display: grid !important; */
-  /* Dynamische Spalten: Alle Spalten außer der letzten sind 'min-content' (so breit wie nötig),
-     die letzte Spalte ist immer '1fr' (nimmt den Rest). */
-  /* grid-template-columns: repeat(calc(var(--col-count, 1) - 1), min-content) 1fr;
-
-  align-items: center;
-  gap: 1.5rem; /* Sauberer Abstand zwischen den Spalten */
-/*  width: 100%;
-  padding: 24px 24px;
-  font-family: 'Iosevka Charon Mono', monospace !important;
-} */
-
 .osd-text-wrap {
   display: grid !important;
   /* Dynamisches Grid:

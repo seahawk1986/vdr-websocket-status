@@ -22,12 +22,12 @@ export default defineConfig({
         families: [
           {
             name: 'Roboto',
-            weights: [100, 300, 400, 500, 700, 900],
+            weights: [400],
             styles: ['normal', 'italic'],
           },
           {
             name: 'Iosevka Charon Mono',
-            weights: [300, 400, 500, 700],
+            weights: [500],
             styles: ['normal'],
           },
         ],
