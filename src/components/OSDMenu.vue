@@ -251,17 +251,32 @@
   opacity: 1 !important;
 }
 
-.osd-text-wrap {
-  display: grid !important;
+/* .osd-text-wrap {
+  display: grid !important; */
   /* Dynamische Spalten: Alle Spalten außer der letzten sind 'min-content' (so breit wie nötig),
      die letzte Spalte ist immer '1fr' (nimmt den Rest). */
-  grid-template-columns: repeat(calc(var(--col-count, 1) - 1), min-content) 1fr;
+  /* grid-template-columns: repeat(calc(var(--col-count, 1) - 1), min-content) 1fr;
 
   align-items: center;
   gap: 1.5rem; /* Sauberer Abstand zwischen den Spalten */
-  width: 100%;
+/*  width: 100%;
   padding: 24px 24px;
-  font-family: 'Roboto Mono', monospace !important;
+  font-family: 'Iosevka Charon Mono', monospace !important;
+} */
+
+.osd-text-wrap {
+  display: grid !important;
+  /* Dynamisches Grid:
+     Alle Spalten vor der letzten sind 'min-content' (so schmal wie möglich),
+     die allerletzte Spalte ist immer '1fr' (füllt den Rest aus). */
+  grid-template-columns: repeat(calc(var(--col-count, 1) - 1), min-content) 1fr;
+
+  align-items: center;
+  gap: 0 1ch; /* Sauberer Abstand zwischen den Spalten */
+  width: 100%;
+  padding: 0;
+  font-weight: 500;
+  font-family: 'Iosevka Charon Mono', monospace !important;
 }
 
 /* Spalten-Layout stabilisieren */
@@ -277,20 +292,6 @@
 .osd-text-wrap[style*="--col-count: 4"] .col-0,
 .osd-text-wrap[style*="--col-count: 4"] .col-1 {
   min-width: 5ch; /* Hält Datum und Zeit stabil untereinander */
-}
-
-.osd-text-wrap {
-  display: grid !important;
-  /* Dynamisches Grid:
-     Alle Spalten vor der letzten sind 'min-content' (so schmal wie möglich),
-     die allerletzte Spalte ist immer '1fr' (füllt den Rest aus). */
-  grid-template-columns: repeat(calc(var(--col-count, 1) - 1), min-content) 1fr;
-
-  align-items: center;
-  gap: 0 1ch; /* Sauberer Abstand zwischen den Spalten */
-  width: 100%;
-  padding: 0;
-  font-family: 'Roboto Mono', monospace !important;
 }
 
 .osd-column {

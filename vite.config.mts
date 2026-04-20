@@ -25,6 +25,11 @@ export default defineConfig({
             weights: [100, 300, 400, 500, 700, 900],
             styles: ['normal', 'italic'],
           },
+          {
+            name: 'Iosevka Charon Mono',
+            weights: [300, 400, 500, 700],
+            styles: ['normal'],
+          },
         ],
       },
       custom: {
