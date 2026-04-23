@@ -38,19 +38,14 @@ jobs:
           zip -r "$ZIP_NAME" dist/
           echo "RELEASE_ZIP=$ZIP_NAME" >> $GITHUB_ENV
 
-      - name: Create GitHub Release
+      - name: Create a zip archive from the dist folder
+        run: |
+          cd dist
+          zip -r ../yavdr-webfrontend.zip .
+
+      - name: Create release and upload asset
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ env.RELEASE_ZIP }}
-          tag_name: ${{ github.ref_name }}
-          name: vdr-websocket-status Release ${{ github.ref_name }}
-          body: "Automatischer Build für Tag ${{ github.ref_name }}"
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist-files
-          path: dist/
+          files: yavdr-webfrontend.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
