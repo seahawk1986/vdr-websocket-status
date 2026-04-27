@@ -123,14 +123,14 @@ export const useAppStore = defineStore('app', () => {
     lastOsdClear.value = new Date()
   }
 
-  function addMessage(text: string, color: string) {
+  function addMessage (text: string, color: string) {
     snackBarMessages.value.push({
       text,
       color,
     })
   }
 
-  function processTvData(data: TVDisplay) {
+  function processTvData (data: TVDisplay) {
     currentChannelNumber.value = data.number
     currentChannelName.value = data.name
     if (data.epg) {
@@ -150,7 +150,7 @@ export const useAppStore = defineStore('app', () => {
       channelAudioTracksCount.value = data.tech.audio_tracks_count
     }
   }
-  function processReplayData(data: ReplayDisplay) {
+  function processReplayData (data: ReplayDisplay) {
     ScreenMode.value = data.status === 'started' ? Screen.Replay : Screen.TV
     replayName.value = data.recording?.title ?? data.name
     replayShortText.value = data.recording?.subtitle ?? ''
@@ -171,7 +171,7 @@ export const useAppStore = defineStore('app', () => {
   const lastMessage = ref<any>(null)
   let wsClient: WebSocketClient | null = null
 
-  function webSocketConnect() {
+  function webSocketConnect () {
     if (wsClient) {
       return
     } // prevent multiple connections
@@ -295,7 +295,7 @@ export const useAppStore = defineStore('app', () => {
     })
   }
 
-  function sendMessage(payload: object) {
+  function sendMessage (payload: object) {
     wsClient?.send(payload)
   }
 

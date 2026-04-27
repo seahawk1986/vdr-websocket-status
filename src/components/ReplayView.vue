@@ -10,6 +10,7 @@
             <MarqueeText :content="store.replayName">
               {{ store.replayName }}
             </MarqueeText>
+
             <MarqueeText v-if="store.replayShortText.length > 0" :content="store.replayShortText">
               {{ store.replayShortText }}
             </MarqueeText>
@@ -23,6 +24,7 @@
             </MarqueeText> -->
             <div class="d-flex align-center">
               <div>{{ elapsedTime }}</div>
+
               <v-divider
                 class="align-self-center"
                 color="primary"
@@ -31,9 +33,11 @@
                 thickness="12"
                 variant="dotted"
               />
+
               <div :style="{ fontSize: 'clamp(3rem, 5vw, 7rem) !important' }">
                 <v-icon :icon="replayIcon" />
               </div>
+
               <v-divider
                 class="align-center"
                 color="primary"
@@ -42,11 +46,13 @@
                 thickness="12"
                 variant="dotted"
               />
+
               <div>{{ remainingTime }}</div>
             </div>
 
           </v-sheet>
         </div>
+
         <v-progress-linear
           v-model="store.replayProgress"
           class="mb-6"
@@ -125,7 +131,7 @@
     } as CSSProperties // "as CSSProperties" hilft bei den Custom-Properties (--content-height)
   })
 
-  async function checkOverflow() {
+  async function checkOverflow () {
     await nextTick()
     const container = containerRef.value?.$el || containerRef.value
     const content = contentRef.value

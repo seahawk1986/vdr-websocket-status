@@ -208,6 +208,7 @@
             <v-icon :icon="replayIcon" />
           </div>
         </v-col>
+
         <v-col class="d-flex justify-end pr-0" cols="6">
           <div class="clock-font font-weight-black text-uppercase text-right">
             <date-time format="fullTime24h" />

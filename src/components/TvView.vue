@@ -65,10 +65,12 @@
             <!-- <v-divider class="mx-6" opacity="0.3" thickness="4" vertical /> -->
           </div>
         </template>
+
         <v-card-title class="font-weight-bold pa-0 text-uppercase">
           <MarqueeText class="flex-grow-1" :content="store.currentChannelName">
             {{ store.currentChannelName }}
           </MarqueeText>
+
           <v-divider />
         </v-card-title>
         <!-- channel properties and status items-->
@@ -86,7 +88,9 @@
               <div class="flex-shrink-0 opacity-80 time-width">
                 {{ date.format(currentStartDate, 'fullTime24h') }}<template v-if="store.showEndTime"> - {{ date.format(currentEndDate, 'fullTime24h') }}</template>
               </div>
+
               <v-divider class="mx-6" opacity="0.3" thickness="4" vertical />
+
               <MarqueeText class="flex-grow-1" :content="store.currentEvent?.title">
                 {{ store.currentEvent?.title }}
               </MarqueeText>
@@ -108,7 +112,9 @@
               <div class="flex-shrink-0 opacity-80 time-width">
                 {{ date.format(followingStartDate, 'fullTime24h') }}<template v-if="store.showEndTime"> - {{ date.format(followingEndDate, 'fullTime24h') }}</template>
               </div>
+
               <v-divider class="mx-6" opacity="0.3" thickness="4" vertical />
+
               <MarqueeText class="flex-grow-1" :content="store.nextEvent?.title">
                 {{ store.nextEvent?.title }}
               </MarqueeText>
@@ -118,14 +124,17 @@
         </div>
       </v-card-text>
     </div>
+
     <Teleport defer to="#footer-actions">
-      <v-sheet class="d-flex justify-space-around align-center bg-background pa-4 flex-grow-1 w-100 opacity-80"  :style="{ fontSize: 'clamp(3rem, 6vw, 8rem)' }">
+      <v-sheet class="d-flex justify-space-around align-center bg-background pa-4 flex-grow-1 w-100 opacity-80" :style="{ fontSize: 'clamp(3rem, 6vw, 8rem)' }">
         <div class="d-flex align-center">
           {{ store.timers.length }} <v-icon icon="mdi-timer" size="small" />
         </div>
+
         <div>
           <date-time format="fullDateTime24h" />
         </div>
+
         <div class="d-flex align-center">
           {{ store.nNewRecordings }} <v-icon icon="mdi-movie-star" size="small" />
         </div>

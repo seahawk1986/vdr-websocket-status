@@ -47,7 +47,7 @@ export default defineConfig({
     {
       name: 'exclude-unused-fonts',
       // call this hook before vite generates assets
-      generateBundle(_, bundle) {
+      generateBundle (_, bundle) {
         for (const fileName in bundle) {
           // check for fonts extentions we don't want to keep
           if (/\.(ttf|eot|woff|otf)$/.test(fileName)) {

@@ -29,6 +29,7 @@
 
           </div>
         </template>
+
         <v-card-title class="font-weight-bold pa-0 text-uppercase title-fluid-display">
           <MarqueeText class="flex-grow-1" :content="store.currentChannelName">
             {{ store.currentChannelName }}
@@ -45,7 +46,9 @@
               <div class="flex-shrink-0 opacity-80 time-width">
                 {{ date.format(store.currentStartDate, 'fullTime24h') }}<template v-if="store.showEndTime"> - {{ date.format(store.currentEndDate, 'fullTime24h') }}</template>
               </div>
+
               <v-divider class="mx-6" opacity="0.3" thickness="4" vertical />
+
               <MarqueeText class="flex-grow-1" :content="store.currentEvent?.title">
                 {{ store.currentEvent?.title }}
               </MarqueeText>
@@ -67,7 +70,9 @@
               <div class="flex-shrink-0 opacity-80 time-width">
                 {{ date.format(store.followingStartDate, 'fullTime24h') }}<template v-if="store.showEndTime"> - {{ date.format(store.followingEndDate, 'fullTime24h') }}</template>
               </div>
+
               <v-divider class="mx-6" opacity="0.3" thickness="4" vertical />
+
               <MarqueeText class="flex-grow-1" :content="store.nextEvent?.title">
                 {{ store.nextEvent?.title }}
               </MarqueeText>
@@ -85,6 +90,7 @@
         <div :style="{ fontSize: 'clamp(3rem, 5vw, 7rem)' }">
           <tv-status-symbols />
         </div>
+
         <div :style="{ fontSize: 'clamp(3rem, 5vw, 7rem)' }">
           <date-time format="fullTime24h" />
         </div>

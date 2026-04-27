@@ -10,6 +10,7 @@
     <v-icon :color="store.channelAudioTracksCount > 1 ? 'warning' : 'grey-darken-2'" icon="mdi-soundbar" />
     <v-icon :color="store.channelHasDolby ? 'warning' : 'grey-darken-2'" icon="mdi-dolby" />
     <v-icon :color="store.channelHasTeletext ? 'warning' : 'grey-darken-2'" icon="mdi-card-text-outline" />
+
     <v-icon
       :class="store.is_recording ? 'recording-pulse' : ''"
       :color="store.is_recording ? 'red' : 'grey-darken-2'"

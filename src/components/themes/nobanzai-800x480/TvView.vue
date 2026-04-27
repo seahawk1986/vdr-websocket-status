@@ -17,7 +17,6 @@
     return null
   })
 
-
   const followingStartDate = computed(() => {
     if (store.nextEvent?.start) {
       const d = new Date(store.nextEvent.start * 1000)
@@ -25,7 +24,6 @@
     }
     return null
   })
-
 
 </script>
 
@@ -55,12 +53,14 @@
           width="100%"
         />
       </v-col>
+
       <v-col class="pa-0 pt-4 d-flex flex-column align-end" cols="8">
         <div class="font-weight-black text-uppercase text-right w-100 channel-font">
           <MarqueeText :content="store.currentChannelName">
             {{ store.currentChannelName }}
           </MarqueeText>
         </div>
+
         <v-divider
           class="mt-6 opacity-100"
           color="primary"
@@ -78,7 +78,9 @@
         <v-col class="epg-font-main font-weight-black time-col" cols="auto">
           {{ date.format(currentStartDate, 'fullTime24h') }}
         </v-col>
+
         <v-divider class="mx-8 v-sep" thickness="6" vertical />
+
         <v-col class="overflow-hidden">
           <div class="epg-font-main font-weight-black text-truncate">
             <MarqueeText :content="store.currentEvent?.title">
@@ -101,7 +103,9 @@
         <v-col class="epg-font-next font-weight-bold time-col" cols="auto">
           {{ date.format(followingStartDate, 'fullTime24h') }}
         </v-col>
+
         <v-divider class="mx-8 v-sep-small" thickness="6" vertical />
+
         <v-col class="overflow-hidden">
           <div class="epg-font-next font-weight-bold text-truncate">
             <MarqueeText :content="store.nextEvent?.title">
@@ -121,6 +125,7 @@
       <v-col cols="6">
         <tv-status-symbols class="d-flex ga-10 status-icons" />
       </v-col>
+
       <v-col class="d-flex justify-end pr-0" cols="6">
         <div class="clock-font font-weight-black text-uppercase text-right">
           <date-time format="fullTime24h" />

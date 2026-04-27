@@ -2,6 +2,7 @@
   <v-app>
     <v-main class="d-flex flex-column" style="height: 100vh;">
       <ConnectView />
+
       <v-snackbar-queue
         ref="snackbarQueue"
         v-model="store.snackBarMessages"
@@ -20,14 +21,18 @@
           </div>
         </template>
       </v-snackbar-queue>
+
       <template v-if="store.showOsd">
         <OSDMenu />
       </template>
+
       <template v-if="store.ScreenMode == Screen.TV">
         <TvView />
       </template>
+
       <ReplayView v-else-if="store.ScreenMode == Screen.Replay" class="flex-grow-1" />
     </v-main>
+
     <v-footer app class="pa-0 bg-transparent">
       <div id="footer-actions" class="w-100" />
     </v-footer>

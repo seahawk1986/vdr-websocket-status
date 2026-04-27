@@ -7,7 +7,6 @@
   const store = useAppStore()
   const date = useDate()
 
-
 </script>
 
 <template>
@@ -30,6 +29,7 @@
 
           </div>
         </template>
+
         <v-card-title class="font-weight-bold pa-0 opacity-80  text-uppercase title-fluid-display">
           <div>
             <date-time format="fullTime24h" />
@@ -49,7 +49,9 @@
               <div class="flex-shrink-0 opacity-80 time-width">
                 {{ date.format(store.currentStartDate, 'fullTime24h') }}<template v-if="store.showEndTime"> - {{ date.format(store.currentEndDate, 'fullTime24h') }}</template>
               </div>
+
               <v-divider class="mx-6" opacity="0.3" thickness="4" vertical />
+
               <MarqueeText class="flex-grow-1" :content="store.currentEvent?.title">
                 {{ store.currentEvent?.title }}
               </MarqueeText>
@@ -70,7 +72,9 @@
               <div class="flex-shrink-0 opacity-80 time-width">
                 {{ date.format(store.followingStartDate, 'fullTime24h') }}<template v-if="store.showEndTime"> - {{ date.format(store.followingEndDate, 'fullTime24h') }}</template>
               </div>
+
               <v-divider class="mx-6" opacity="0.3" thickness="4" vertical />
+
               <MarqueeText class="flex-grow-1" :content="store.nextEvent?.title">
                 {{ store.nextEvent?.title }}
               </MarqueeText>
